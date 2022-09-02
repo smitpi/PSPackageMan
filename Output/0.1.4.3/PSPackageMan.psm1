@@ -3,11 +3,11 @@
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
-# ModifiedOn:       2022/09/02 23:33:14
+# ModifiedOn:       2022/09/03 01:02:55
 # Synopsis:         Add an app to one more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -139,8 +139,16 @@ Function Add-PSPackageManAppToList {
 			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 
 			[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
-			$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
-			$NewAppObject | ForEach-Object {[void]$AppObject.Add($_)}
+			$Content.Apps | ForEach-Object {
+					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+					} else {$AppObject.Add($_)}
+				}
+			$NewAppObject | ForEach-Object {
+					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+					} else {$AppObject.Add($_)}
+				}
 			$AppObject = $AppObject | Where-Object {$_ -notlike $null}
 
 
@@ -178,7 +186,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 10 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -272,11 +280,11 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 10 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
-# ModifiedOn:       2022/09/02 21:24:01
+# ModifiedOn:       2022/09/03 00:59:15
 # Synopsis:         Installs the apps from the GitHub Gist List.
 #############################################
  
@@ -340,10 +348,14 @@ Function Install-PSPackageManAppFromList {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
 			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($list)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-		$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
+		$Content.Apps | ForEach-Object {
+			if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+				Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+			} else {$AppObject.Add($_)}
+		}
 	}
-		
-	foreach ($app in ($AppObject | Sort-Object -Property id -Unique)) {
+
+	foreach ($app in $AppObject) {
 		[int]$maxlength = ($content.Apps.name | Measure-Object -Property length -Maximum).Maximum
 		[int]$maxPackageManagerlength = ($content.Apps.PackageManager | Measure-Object -Property length -Maximum).Maximum + ($content.Apps.Source | Measure-Object -Property length -Maximum).Maximum + 3
 		Remove-Variable CheckInstalled -ErrorAction SilentlyContinue
@@ -398,7 +410,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 4 of 10 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -518,7 +530,7 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 5 of 10 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -626,7 +638,7 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 6 of 10 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -713,7 +725,7 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 7 of 10 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
@@ -863,7 +875,7 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 8 of 10 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44
@@ -954,7 +966,7 @@ Export-ModuleMember -Function Show-PSPackageManApp
 ######## Function 9 of 10 ##################
 # Function:         Show-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -1042,7 +1054,7 @@ Export-ModuleMember -Function Show-PSPackageManAppList
 ######## Function 10 of 10 ##################
 # Function:         Show-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.2
+# ModuleVersion:    0.1.4.3
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36

@@ -170,8 +170,16 @@ Function Add-PSPackageManAppToList {
 			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 
 			[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
-			$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
-			$NewAppObject | ForEach-Object {[void]$AppObject.Add($_)}
+			$Content.Apps | ForEach-Object {
+					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+					} else {$AppObject.Add($_)}
+				}
+			$NewAppObject | ForEach-Object {
+					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+					} else {$AppObject.Add($_)}
+				}
 			$AppObject = $AppObject | Where-Object {$_ -notlike $null}
 
 

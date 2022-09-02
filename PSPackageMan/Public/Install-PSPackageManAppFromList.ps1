@@ -102,10 +102,14 @@ Function Install-PSPackageManAppFromList {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
 			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($list)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-		$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
+		$Content.Apps | ForEach-Object {
+			if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+				Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+			} else {$AppObject.Add($_)}
+		}
 	}
-		
-	foreach ($app in ($AppObject | Sort-Object -Property id -Unique)) {
+
+	foreach ($app in $AppObject) {
 		[int]$maxlength = ($content.Apps.name | Measure-Object -Property length -Maximum).Maximum
 		[int]$maxPackageManagerlength = ($content.Apps.PackageManager | Measure-Object -Property length -Maximum).Maximum + ($content.Apps.Source | Measure-Object -Property length -Maximum).Maximum + 3
 		Remove-Variable CheckInstalled -ErrorAction SilentlyContinue
