@@ -123,6 +123,46 @@ Function Add-PSPackageManAppToList {
 		} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
 	}
 	process {
+		[System.Collections.Generic.List[PSCustomObject]]$NewAppObject = @()
+		foreach ($NewApp in $SearchString) {
+			Write-Color '[Searching]', " $($NewApp)" -Color Yellow, Gray
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
+			[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
+			$SearchParams = $PSBoundParameters
+			[void]$SearchParams.Remove('ListName')
+			[void]$SearchParams.Remove('GithubUserID')
+			[void]$SearchParams.Remove('GitHubToken')
+			[void]$SearchParams.Remove('SearchString')
+			Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
+			if ($SearchResult.Count -eq 1) {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+				$NewAppObject.Add([PSCustomObject]@{
+						Name           = $SearchResult.Name
+						Id             = $SearchResult.Id
+						PackageManager = $PackageManager
+						Source         = $SearchResult.source
+					})
+			} elseif ($SearchResult.Count -gt 1) {
+				Write-Color 'Please pick from below for', " $($NewApp)" -Color Gray, Yellow -LinesBefore 2 -LinesAfter 1
+				$index = 0
+				$SearchResult | ForEach-Object {
+					Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
+					$index++ 
+				}
+				Write-Host ''
+				[int]$PickIndex = Read-Host 'Choose'
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+				$NewAppObject.Add([PSCustomObject]@{
+						Name           = $SearchResult[$PickIndex].Name
+						Id             = $SearchResult[$PickIndex].Id
+						PackageManager = $PackageManager
+						Source         = $SearchResult[$PickIndex].source
+					})
+			} else {Write-Error 'No App Found'}
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+		}		
+	}
+	end {
 		foreach ($list in $ListName) {
 			try {
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
@@ -131,44 +171,10 @@ Function Add-PSPackageManAppToList {
 
 			[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
 			$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
+			$NewAppObject | ForEach-Object {[void]$AppObject.Add($_)}
+			$AppObject = $AppObject | Where-Object {$_ -notlike $null}
 
-			foreach ($NewApp in $SearchString) {
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
-				[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
-				$SearchParams = $PSBoundParameters
-				[void]$SearchParams.Remove('ListName')
-				[void]$SearchParams.Remove('GithubUserID')
-				[void]$SearchParams.Remove('GitHubToken')
-				[void]$SearchParams.Remove('SearchString')
-				Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
-				if ($SearchResult.Count -eq 1) {
-					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-					$AppObject.Add([PSCustomObject]@{
-							Name           = $SearchResult.Name
-							Id             = $SearchResult.Id
-							PackageManager = $PackageManager
-							Source         = $SearchResult.source
-						})
-				} elseif ($SearchResult.Count -gt 1) {
-					Write-Color 'Please pick from below'
-					$index = 0
-					$SearchResult | ForEach-Object {
-						Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
-						$index++ 
-					}
-					Write-Host ''
-					[int]$PickIndex = Read-Host 'Choose'
-					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-					$AppObject.Add([PSCustomObject]@{
-							Name           = $SearchResult[$PickIndex].Name
-							Id             = $SearchResult[$PickIndex].Id
-							PackageManager = $PackageManager
-							Source         = $SearchResult[$PickIndex].source
-						})
-				} else {Write-Error 'No App Found'}
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
-			}		
-		
+
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Completing and sorting object"
 			$Content.Apps = $AppObject | Sort-Object -Property Name, PackageManager -Unique
 			$Content.ModifiedDate = "$(Get-Date -Format u)"

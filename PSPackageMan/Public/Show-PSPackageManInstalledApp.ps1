@@ -32,7 +32,11 @@ Created [02/09/2022_19:58] Initial Script Creating
 
 #>
 
+#Requires -Module ImportExcel
+#Requires -Module PSWriteHTML
 #Requires -Module PSWriteColor
+
+#
 
 <# 
 

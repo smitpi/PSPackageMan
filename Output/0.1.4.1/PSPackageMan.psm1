@@ -3,11 +3,11 @@
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
-# ModifiedOn:       2022/09/02 20:52:47
+# ModifiedOn:       2022/09/02 23:11:16
 # Synopsis:         Add an app to one more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -92,6 +92,46 @@ Function Add-PSPackageManAppToList {
 		} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
 	}
 	process {
+		[System.Collections.Generic.List[PSCustomObject]]$NewAppObject = @()
+		foreach ($NewApp in $SearchString) {
+			Write-Color '[Searching]', " $($NewApp)" -Color Yellow, Gray
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
+			[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
+			$SearchParams = $PSBoundParameters
+			[void]$SearchParams.Remove('ListName')
+			[void]$SearchParams.Remove('GithubUserID')
+			[void]$SearchParams.Remove('GitHubToken')
+			[void]$SearchParams.Remove('SearchString')
+			Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
+			if ($SearchResult.Count -eq 1) {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+				$NewAppObject.Add([PSCustomObject]@{
+						Name           = $SearchResult.Name
+						Id             = $SearchResult.Id
+						PackageManager = $PackageManager
+						Source         = $SearchResult.source
+					})
+			} elseif ($SearchResult.Count -gt 1) {
+				Write-Color 'Please pick from below for', " $($NewApp)" -Color Gray, Yellow -LinesBefore 2 -LinesAfter 1
+				$index = 0
+				$SearchResult | ForEach-Object {
+					Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
+					$index++ 
+				}
+				Write-Host ''
+				[int]$PickIndex = Read-Host 'Choose'
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+				$NewAppObject.Add([PSCustomObject]@{
+						Name           = $SearchResult[$PickIndex].Name
+						Id             = $SearchResult[$PickIndex].Id
+						PackageManager = $PackageManager
+						Source         = $SearchResult[$PickIndex].source
+					})
+			} else {Write-Error 'No App Found'}
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+		}		
+	}
+	end {
 		foreach ($list in $ListName) {
 			try {
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
@@ -100,44 +140,10 @@ Function Add-PSPackageManAppToList {
 
 			[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
 			$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
+			$NewAppObject | ForEach-Object {[void]$AppObject.Add($_)}
+			$AppObject = $AppObject | Where-Object {$_ -notlike $null}
 
-			foreach ($NewApp in $SearchString) {
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
-				[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
-				$SearchParams = $PSBoundParameters
-				[void]$SearchParams.Remove('ListName')
-				[void]$SearchParams.Remove('GithubUserID')
-				[void]$SearchParams.Remove('GitHubToken')
-				[void]$SearchParams.Remove('SearchString')
-				Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
-				if ($SearchResult.Count -eq 1) {
-					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-					$AppObject.Add([PSCustomObject]@{
-							Name           = $SearchResult.Name
-							Id             = $SearchResult.Id
-							PackageManager = $PackageManager
-							Source         = $SearchResult.source
-						})
-				} elseif ($SearchResult.Count -gt 1) {
-					Write-Color 'Please pick from below'
-					$index = 0
-					$SearchResult | ForEach-Object {
-						Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
-						$index++ 
-					}
-					Write-Host ''
-					[int]$PickIndex = Read-Host 'Choose'
-					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-					$AppObject.Add([PSCustomObject]@{
-							Name           = $SearchResult[$PickIndex].Name
-							Id             = $SearchResult[$PickIndex].Id
-							PackageManager = $PackageManager
-							Source         = $SearchResult[$PickIndex].source
-						})
-				} else {Write-Error 'No App Found'}
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
-			}		
-		
+
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Completing and sorting object"
 			$Content.Apps = $AppObject | Sort-Object -Property Name, PackageManager -Unique
 			$Content.ModifiedDate = "$(Get-Date -Format u)"
@@ -172,7 +178,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 10 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -266,7 +272,7 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 10 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
@@ -392,7 +398,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 4 of 10 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -512,7 +518,7 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 5 of 10 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -620,7 +626,7 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 6 of 10 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -707,7 +713,7 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 7 of 10 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
@@ -857,11 +863,11 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 8 of 10 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44
-# ModifiedOn:       2022/09/02 21:13:12
+# ModifiedOn:       2022/09/02 23:20:19
 # Synopsis:         Show an app to one of the predefined GitHub Gist Lists.
 #############################################
  
@@ -931,8 +937,9 @@ Function Show-PSPackageManApp {
 					Source         = $_.Source
 				})
 		}
-		$AppObject
 	}
+	$AppObject
+	
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
@@ -947,11 +954,11 @@ Export-ModuleMember -Function Show-PSPackageManApp
 ######## Function 9 of 10 ##################
 # Function:         Show-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
-# ModifiedOn:       2022/09/02 20:03:50
+# ModifiedOn:       2022/09/02 23:08:22
 # Synopsis:         Show a List of all the GitHub Gist app Lists.
 #############################################
  
@@ -979,7 +986,7 @@ Function Show-PSPackageManAppList {
 	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Show-PSPackageManAppList')]
 	[OutputType([System.Object[]])]
 	PARAM(
-		[Parameter(Mandatory = $true)]
+		[Parameter(Mandatory)]
 		[string]$GitHubUserID, 
 		[Parameter(ParameterSetName = 'Public')]
 		[switch]$PublicGist,
@@ -1035,11 +1042,11 @@ Export-ModuleMember -Function Show-PSPackageManAppList
 ######## Function 10 of 10 ##################
 # Function:         Show-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1.0
+# ModuleVersion:    0.1.4.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36
-# ModifiedOn:       2022/09/02 21:51:54
+# ModifiedOn:       2022/09/02 22:39:00
 # Synopsis:         This will display a list of installed apps, and their details in the repositories.
 #############################################
  

@@ -107,8 +107,9 @@ Function Show-PSPackageManApp {
 					Source         = $_.Source
 				})
 		}
-		$AppObject
 	}
+	$AppObject
+	
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
