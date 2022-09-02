@@ -76,9 +76,6 @@ Select for more search options.
 .PARAMETER ChocoSource
 Chocolatey source
 
-.PARAMETER DetailedResults
-Show all the details from the winget search.
-
 .PARAMETER Exact
 Limits the search to the exact search string.
 
@@ -91,7 +88,7 @@ Function Add-PSPackageManAppToList {
 	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory)]
-		[string]$ListName,
+		[string[]]$ListName,
 		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
 		[Alias('Id', 'PackageIdentifier', 'Name')]
 		[string[]]$SearchString,
@@ -104,8 +101,6 @@ Function Add-PSPackageManAppToList {
 		[string]$GitHubToken,
 		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$MoreOptions,
-		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$DetailedResults,
 		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
 		[Parameter(ParameterSetName = 'MoreOptions')]
@@ -126,77 +121,77 @@ Function Add-PSPackageManAppToList {
 			$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
 			$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
 		} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
-
-		try {
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
-			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($ListName)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
-		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-
-		[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
-		$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
 	}
 	process {
-		foreach ($NewApp in $SearchString) {
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
-			[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
-			$SearchParams = $PSBoundParameters
-			[void]$SearchParams.Remove('ListName')
-			[void]$SearchParams.Remove('GithubUserID')
-			[void]$SearchParams.Remove('GitHubToken')
-			[void]$SearchParams.Remove('SearchString')
-			Search-PSPackageManApp-SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
-			if ($SearchResult.Count -eq 1) {
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-				$AppObject.Add([PSCustomObject]@{
-						Name           = $SearchResult.Name
-						Id             = $SearchResult.Id
-						PackageManager = $PackageManager
-						Source         = $SearchResult.source
-					})
-			} elseif ($SearchResult.Count -gt 1) {
-				Write-Color 'Please pick from below'
-				$index = 0
-				$SearchResult | ForEach-Object {
-					Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
-					$index++ 
-				}
-				Write-Host ''
-				[int]$PickIndex = Read-Host 'Choose'
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-				$AppObject.Add([PSCustomObject]@{
-						Name           = $SearchResult[$PickIndex].Name
-						Id             = $SearchResult[$PickIndex].Id
-						PackageManager = $PackageManager
-						Source         = $SearchResult[$PickIndex].source
-					})
-			} else {Write-Warning 'No App Found'}
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+		foreach ($list in $ListName) {
+			try {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
+				$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($List)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+
+			[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
+			$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
+
+			foreach ($NewApp in $SearchString) {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
+				[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
+				$SearchParams = $PSBoundParameters
+				[void]$SearchParams.Remove('ListName')
+				[void]$SearchParams.Remove('GithubUserID')
+				[void]$SearchParams.Remove('GitHubToken')
+				[void]$SearchParams.Remove('SearchString')
+				Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
+				if ($SearchResult.Count -eq 1) {
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+					$AppObject.Add([PSCustomObject]@{
+							Name           = $SearchResult.Name
+							Id             = $SearchResult.Id
+							PackageManager = $PackageManager
+							Source         = $SearchResult.source
+						})
+				} elseif ($SearchResult.Count -gt 1) {
+					Write-Color 'Please pick from below'
+					$index = 0
+					$SearchResult | ForEach-Object {
+						Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
+						$index++ 
+					}
+					Write-Host ''
+					[int]$PickIndex = Read-Host 'Choose'
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+					$AppObject.Add([PSCustomObject]@{
+							Name           = $SearchResult[$PickIndex].Name
+							Id             = $SearchResult[$PickIndex].Id
+							PackageManager = $PackageManager
+							Source         = $SearchResult[$PickIndex].source
+						})
+				} else {Write-Error 'No App Found'}
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+			}		
+		
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Completing and sorting object"
+			$Content.Apps = $AppObject | Sort-Object -Property Name, PackageManager -Unique
+			$Content.ModifiedDate = "$(Get-Date -Format u)"
+			$content.ModifiedUser = "$($env:USERNAME.ToLower())@$($env:USERDNSDOMAIN.ToLower())"
+			try {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Uploading to gist"
+				$Body = @{}
+				$files = @{}
+				$Files["$($PRGist.files.$($List).Filename)"] = @{content = ( $Content | ConvertTo-Json | Out-String ) }
+				$Body.files = $Files
+				$Uri = 'https://api.github.com/gists/{0}' -f $PRGist.id
+				$json = ConvertTo-Json -InputObject $Body
+				$json = [System.Text.Encoding]::UTF8.GetBytes($json)
+				$null = Invoke-WebRequest -Headers $headers -Uri $Uri -Method Patch -Body $json -ErrorAction Stop
+				Write-Host '[Uploaded]' -NoNewline -ForegroundColor Yellow; Write-Host " List: $($List)" -NoNewline -ForegroundColor Cyan; Write-Host ' to Github Gist' -ForegroundColor Green
+			} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
 		}
-	}
-	end {
-		Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Completing and sorting object"
-		$Content.Apps = $AppObject | Sort-Object -Property Name, PackageManager -Unique
-		$Content.ModifiedDate = "$(Get-Date -Format u)"
-		$content.ModifiedUser = "$($env:USERNAME.ToLower())@$($env:USERDNSDOMAIN.ToLower())"
-		try {
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Uploading to gist"
-			$Body = @{}
-			$files = @{}
-			$Files["$($PRGist.files.$($ListName).Filename)"] = @{content = ( $Content | ConvertTo-Json | Out-String ) }
-			$Body.files = $Files
-			$Uri = 'https://api.github.com/gists/{0}' -f $PRGist.id
-			$json = ConvertTo-Json -InputObject $Body
-			$json = [System.Text.Encoding]::UTF8.GetBytes($json)
-			$null = Invoke-WebRequest -Headers $headers -Uri $Uri -Method Patch -Body $json -ErrorAction Stop
-			Write-Host '[Uploaded]' -NoNewline -ForegroundColor Yellow; Write-Host " List: $($ListName)" -NoNewline -ForegroundColor Cyan; Write-Host ' to Github Gist' -ForegroundColor Green
-		} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
 		Write-Verbose "[$(Get-Date -Format HH:mm:ss) DONE]"
 	}
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Show-PSPackageManList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Show-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
 }
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ListName -ScriptBlock $scriptblock
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ChocoSource -ScriptBlock {choco source --limit-output | ForEach-Object {$_.split('|')[0]}}
-Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName WingetSource -ScriptBlock {(winget source list) -match 'http' -split '\s+' -notmatch 'http'}

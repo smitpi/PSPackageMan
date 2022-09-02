@@ -69,7 +69,7 @@ Function Show-PSPackageManApp {
 	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory)]
-		[string]$ListName,
+		[string[]]$ListName,
 		[Parameter(Mandatory)]
 		[string]$GitHubUserID,
 		[Parameter(ParameterSetName = 'Public')]
@@ -91,16 +91,24 @@ Function Show-PSPackageManApp {
 		$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
 	} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
 
-	try {
-		Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
-		$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($ListName)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
-	} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-
 	[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
-	$Content.Apps | ForEach-Object {[void]$AppObject.Add($_)}
+	foreach ($List in $ListName) {
+		try {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
+			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($List)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 
-	$AppObject
-
+		$Content.Apps | ForEach-Object {
+			$AppObject.Add([PSCustomObject]@{
+					ListName       = $List
+					Name           = $_.Name
+					ID             = $_.id
+					PackageManager = $_.PackageManager
+					Source         = $_.Source
+				})
+		}
+		$AppObject
+	}
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)

@@ -81,9 +81,8 @@ Function Add-PSPackageManDefaultsToProfile {
 	## TODO Add remove config from profile.
 
 	if ($PublicGist) {
-		$Script:PSDefaultParameterValues['*PSPackageMan*:GitHubUserID'] = "$($GitHubUserID)"
-		$Script:PSDefaultParameterValues['*PSPackageMan*:PublicGist'] = $true
-		$Script:PSDefaultParameterValues['*PSPackageMan*:Scope'] = "$($Scope)"
+		$PSDefaultParameterValues.Add('*PSPackageMan*:GitHubUserID',"$($GitHubUserID)")
+		$PSDefaultParameterValues.Add('*PSPackageMan*:PublicGist',$true)
 
 		$ToAppend = @"
 
@@ -91,16 +90,19 @@ Function Add-PSPackageManDefaultsToProfile {
 `$PSDefaultParameterValues['*PSPackageMan*:GitHubUserID'] = "$($GitHubUserID)"
 `$PSDefaultParameterValues['*PSPackageMan*:PublicGist'] = `$true
 #endregion PSPackageMan
+
 "@
 	} else {
-		$Script:PSDefaultParameterValues['*PSPackageMan*:GitHubUserID'] = "$($GitHubUserID)"
-		$Script:PSDefaultParameterValues['*PSPackageMan*:GitHubToken'] = "$($GitHubToken)"
+		$PSDefaultParameterValues.Add('*PSPackageMan*:GitHubUserID',"$($GitHubUserID)")
+		$PSDefaultParameterValues.Add('*PSPackageMan*:GitHubToken',"$($GitHubToken)")
+		
 		$ToAppend = @"
 		
 #region PSPackageMan Defaults
 `$PSDefaultParameterValues['*PSPackageMan*:GitHubUserID'] =  "$($GitHubUserID)"
 `$PSDefaultParameterValues['*PSPackageMan*:GitHubToken'] =  "$($GitHubToken)"
 #endregion PSPackageMan
+
 "@
 	}
 

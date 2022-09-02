@@ -61,20 +61,16 @@ Select for more search options.
 .PARAMETER ChocoSource
 Chocolatey source
 
-.PARAMETER DetailedResults
-Show all the details from the winget search.
-
 .PARAMETER Exact
 Limits the search to the exact search string.
 
 .EXAMPLE
 Search-PSPackageManApp -SearchString office -PackageManager Winget
 
-
 #>
 Function Search-PSPackageManApp {
-		[Cmdletbinding(DefaultParameterSetName='Set1', HelpURI = "https://smitpi.github.io/PSPackageMan/Search-PSPackageManApp")]
-	    [OutputType([System.Object[]])]
+	[Cmdletbinding(DefaultParameterSetName = 'Set1', HelpURI = 'https://smitpi.github.io/PSPackageMan/Search-PSPackageManApp')]
+	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
 		[ValidateNotNullOrEmpty()]
@@ -86,8 +82,6 @@ Function Search-PSPackageManApp {
 		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$MoreOptions,
 		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$DetailedResults,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
 		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$Exact
@@ -96,59 +90,65 @@ Function Search-PSPackageManApp {
 		function chocosearch {
 			PARAM($SearchString, $ChocoSource, $Exact)
 
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Starting Choco search"
-			[System.Collections.Generic.List[pscustomobject]]$ChocoObject = @()
-			$source = 'chocolatey'
-			$command = "choco search $($SearchString) --limit-output --order-by-popularity"
-			if ($ChocoSource) {
-				$source = $ChocoSource
-				$command = $command + " --source $($ChocoSource)"
-			} 
-			if ($Exact) {
-				$command = $command + ' --Exact'
-			}
-			$allapps = Invoke-Expression -Command $command
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Building choco output"
-			foreach ($app in $allapps) {
-				$appdetail = $app -split '\|'
-				$ChocoObject.add([pscustomobject]@{
-						Name    = $appdetail[0]
-						Id      = $appdetail[0]
-						version = $appdetail[1]
-						source  = $Source
-					})
-			}
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Choco done"
-			$ChocoObject
+			if (Get-Command choco.exe -ErrorAction SilentlyContinue) {
+				try {
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Starting Choco search"
+					[System.Collections.Generic.List[pscustomobject]]$ChocoObject = @()
+					$source = 'chocolatey'
+					$command = "choco search $($SearchString) --limit-output --order-by-popularity"
+					if ($ChocoSource) {
+						$source = $ChocoSource
+						$command = $command + " --source $($ChocoSource)"
+					} 
+					if ($Exact) {
+						$command = $command + ' --Exact'
+					}
+					$allapps = Invoke-Expression -Command $command
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Building choco output"
+					foreach ($app in $allapps) {
+						$appdetail = $app -split '\|'
+						$ChocoObject.add([pscustomobject]@{
+								Name    = $appdetail[0]
+								Id      = $appdetail[0]
+								version = $appdetail[1]
+								source  = $Source
+							})
+					}
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Choco done"
+					$ChocoObject
+				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+			} else {Write-Warning "Chocolatey is not installed.`nInstall it from https://chocolatey.org/install "}
 		}
 		function wingetsearch {
 			PARAM($SearchString, $DetailedResults, $Exact)
-
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] starting winget search"
-			$Command = "winget search --accept-source-agreements  $($SearchString)"
-			if ($Exact) {$Command = $Command + ' --Exact'}
-			[System.Collections.Generic.List[pscustomobject]]$Result = @()
-			Invoke-Expression -Command $Command | Where-Object { $result.add($_) }
-			if ($LASTEXITCODE -ne 0) {Write-Warning "Error searching Code: $($LASTEXITCODE)"}
-			if ($DetailedResults) {$Result}
-			elseif ($Result -match 'No Package') {Write-Warning 'No package found matching input criteria.'}
-			else {
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Building winget output"
-				[System.Collections.Generic.List[pscustomobject]]$WingetObject = @()
-				$begin = ($Result.IndexOf($Result -match '---') + 1)
-				$end = $Result.count
-				foreach ($line in ($Result[$($begin)..$($end)])) {
-					$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
-					$WingetObject.add([pscustomobject]@{
-							Name    = ($splited[0..($splited.count - 4)] -join ' ')
-							id      = $splited[-3]
-							version = $splited[-2]
-							source  = $splited[-1]
-						})
-				}
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Winget done."
-				$WingetObject
-			}
+			if (Get-Command winget.exe -ErrorAction SilentlyContinue) {
+				try {
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] starting winget search"
+					$Command = "winget search --accept-source-agreements  `"$($SearchString)`""
+					if ($Exact) {$Command = $Command + ' --Exact'}
+					[System.Collections.Generic.List[pscustomobject]]$Result = @()
+					Invoke-Expression -Command $Command | Where-Object { $result.add($_) }
+					if ($LASTEXITCODE -ne 0) {Write-Warning "Error searching Code: $($LASTEXITCODE)"}
+					elseif ($Result -match 'No Package') {Write-Warning 'No package found matching input criteria.'}
+					else {
+						Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Building winget output"
+						[System.Collections.Generic.List[pscustomobject]]$WingetObject = @()
+						$begin = ($Result.IndexOf($Result -match '---') + 1)
+						$end = $Result.count
+						foreach ($line in ($Result[$($begin)..$($end)])) {
+							$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
+							$WingetObject.add([pscustomobject]@{
+									Name    = ($splited[0..($splited.count - 4)] -join ' ')
+									id      = $splited[-3]
+									version = $splited[-2]
+									source  = $splited[-1]
+								})
+						}
+						Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Winget done."
+						$WingetObject
+					}
+				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+			} else {Write-Warning "Winget is not installed.`nInstall it from https://docs.microsoft.com/en-us/windows/package-manager/winget/ "}
 		}
 	}
 	process {
