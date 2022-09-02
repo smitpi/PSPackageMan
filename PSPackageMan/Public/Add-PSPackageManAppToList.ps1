@@ -121,9 +121,9 @@ Function Add-PSPackageManAppToList {
 			$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
 			$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
 		} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
+		[System.Collections.Generic.List[PSCustomObject]]$NewAppObject = @()
 	}
 	process {
-		[System.Collections.Generic.List[PSCustomObject]]$NewAppObject = @()
 		foreach ($NewApp in $SearchString) {
 			Write-Color '[Searching]', " $($NewApp)" -Color Yellow, Gray
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
