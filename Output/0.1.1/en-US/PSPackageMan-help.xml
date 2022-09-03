@@ -1240,7 +1240,7 @@
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ShowAppDetail</maml:name>
           <maml:description>
-            <maml:para>{{ Fill ShowAppDetail Description }}</maml:para>
+            <maml:para>Show more detail about a selected app.</maml:para>
           </maml:description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
@@ -1302,7 +1302,7 @@
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ShowAppDetail</maml:name>
         <maml:description>
-          <maml:para>{{ Fill ShowAppDetail Description }}</maml:para>
+          <maml:para>Show more detail about a selected app.</maml:para>
         </maml:description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>

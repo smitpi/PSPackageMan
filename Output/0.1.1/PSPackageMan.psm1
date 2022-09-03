@@ -3,7 +3,7 @@
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
@@ -182,7 +182,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 10 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -276,7 +276,7 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 10 ##################
 # Function:         Get-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -364,7 +364,7 @@ Export-ModuleMember -Function Get-PSPackageManAppList
 ######## Function 4 of 10 ##################
 # Function:         Get-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36
@@ -531,7 +531,7 @@ Export-ModuleMember -Function Get-PSPackageManInstalledApp
 ######## Function 5 of 10 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
@@ -671,7 +671,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 6 of 10 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -791,7 +791,7 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 7 of 10 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -899,7 +899,7 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 8 of 10 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -986,11 +986,11 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 9 of 10 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
-# ModifiedOn:       2022/09/03 07:03:56
+# ModifiedOn:       2022/09/03 08:45:23
 # Synopsis:         Will search the winget and chocolatey repositories for apps
 #############################################
  
@@ -1012,6 +1012,9 @@ Chocolatey source, if a personal repository is used.
 
 .PARAMETER Exact
 Limits the search to the exact search string.
+
+.PARAMETER ShowAppDetail
+Show more detail about a selected app.
 
 .EXAMPLE
 Search-PSPackageManApp -SearchString office -PackageManager Winget
@@ -1188,7 +1191,7 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 10 of 10 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.13.0
+# ModuleVersion:    0.1.1
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44

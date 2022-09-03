@@ -61,6 +61,9 @@ Chocolatey source, if a personal repository is used.
 .PARAMETER Exact
 Limits the search to the exact search string.
 
+.PARAMETER ShowAppDetail
+Show more detail about a selected app.
+
 .EXAMPLE
 Search-PSPackageManApp -SearchString office -PackageManager Winget
 

@@ -90,7 +90,7 @@ Accept wildcard characters: False
 ```
 
 ### -ShowAppDetail
-{{ Fill ShowAppDetail Description }}
+Show more detail about a selected app.
 
 ```yaml
 Type: SwitchParameter
