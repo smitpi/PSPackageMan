@@ -125,41 +125,43 @@ Function Add-PSPackageManAppToList {
 	}
 	process {
 		foreach ($NewApp in $SearchString) {
-			Write-Color '[Searching]', " $($NewApp)" -Color Yellow, Gray
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
-			[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
-			$SearchParams = $PSBoundParameters
-			[void]$SearchParams.Remove('ListName')
-			[void]$SearchParams.Remove('GithubUserID')
-			[void]$SearchParams.Remove('GitHubToken')
-			[void]$SearchParams.Remove('SearchString')
-			Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
-			if ($SearchResult.Count -eq 1) {
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-				$NewAppObject.Add([PSCustomObject]@{
-						Name           = $SearchResult.Name
-						Id             = $SearchResult.Id
-						PackageManager = $PackageManager
-						Source         = $SearchResult.source
-					})
-			} elseif ($SearchResult.Count -gt 1) {
-				Write-Color 'Please pick from below for', " $($NewApp)" -Color Gray, Yellow -LinesBefore 2 -LinesAfter 1
-				$index = 0
-				$SearchResult | ForEach-Object {
-					Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
-					$index++ 
-				}
-				Write-Host ''
-				[int]$PickIndex = Read-Host 'Choose'
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-				$NewAppObject.Add([PSCustomObject]@{
-						Name           = $SearchResult[$PickIndex].Name
-						Id             = $SearchResult[$PickIndex].Id
-						PackageManager = $PackageManager
-						Source         = $SearchResult[$PickIndex].source
-					})
-			} else {Write-Error 'No App Found'}
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+			try {
+				Write-Color '[Searching]', " $($NewApp)" -Color Yellow, Gray
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
+				[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
+				$SearchParams = $PSBoundParameters
+				[void]$SearchParams.Remove('ListName')
+				[void]$SearchParams.Remove('GithubUserID')
+				[void]$SearchParams.Remove('GitHubToken')
+				[void]$SearchParams.Remove('SearchString')
+				Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
+				if ($SearchResult.Count -eq 1) {
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+					$NewAppObject.Add([PSCustomObject]@{
+							Name           = $SearchResult.Name
+							Id             = $SearchResult.Id
+							PackageManager = $PackageManager
+							Source         = $SearchResult.source
+						})
+				} elseif ($SearchResult.Count -gt 1) {
+					Write-Color 'Please pick from below for', " $($NewApp)" -Color Gray, Yellow -LinesBefore 2 -LinesAfter 1
+					$index = 0
+					$SearchResult | ForEach-Object {
+						Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
+						$index++ 
+					}
+					Write-Host ''
+					[int]$PickIndex = Read-Host 'Choose'
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+					$NewAppObject.Add([PSCustomObject]@{
+							Name           = $SearchResult[$PickIndex].Name
+							Id             = $SearchResult[$PickIndex].Id
+							PackageManager = $PackageManager
+							Source         = $SearchResult[$PickIndex].source
+						})
+				} else {Write-Error 'No App Found'}
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 		}		
 	}
 	end {
@@ -168,23 +170,21 @@ Function Add-PSPackageManAppToList {
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
 				$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($List)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
 			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-
-			[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
-			$Content.Apps | ForEach-Object {
+			try {
+				[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
+				$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
 					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
 						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
 					} else {$AppObject.Add($_)}
 				}
-			$NewAppObject | ForEach-Object {
+				$NewAppObject | Where-Object {$_ -notlike $null} | ForEach-Object {
 					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
 						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
 					} else {$AppObject.Add($_)}
 				}
-			$AppObject = $AppObject | Where-Object {$_ -notlike $null}
-
-
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Completing and sorting object"
-			$Content.Apps = $AppObject | Sort-Object -Property Name, PackageManager -Unique
+			$Content.Apps = $AppObject
 			$Content.ModifiedDate = "$(Get-Date -Format u)"
 			$content.ModifiedUser = "$($env:USERNAME.ToLower())@$($env:USERDNSDOMAIN.ToLower())"
 			try {

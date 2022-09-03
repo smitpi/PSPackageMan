@@ -69,12 +69,12 @@ Function Install-PSPackageManAppFromList {
 	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Install-PSPackageManAppFromList')]
 	[OutputType([System.Object[]])]
 	PARAM(
-		[Parameter(Mandatory = $true)]
+		[Parameter(Mandatory)]
 		[ValidateScript( { $IsAdmin = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 				if ($IsAdmin.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { $True }
 				else { Throw 'Must be running an elevated prompt.' } })]
 		[string[]]$ListName,
-		[Parameter(Mandatory = $true)]
+		[Parameter(Mandatory)]
 		[string]$GitHubUserID,
 		[Parameter(ParameterSetName = 'Public')]
 		[switch]$PublicGist,
@@ -102,52 +102,62 @@ Function Install-PSPackageManAppFromList {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
 			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($list)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-		$Content.Apps | ForEach-Object {
+		$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
 			if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
 				Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
 			} else {$AppObject.Add($_)}
 		}
 	}
 
+
 	foreach ($app in $AppObject) {
-		[int]$maxlength = ($content.Apps.name | Measure-Object -Property length -Maximum).Maximum
-		[int]$maxPackageManagerlength = ($content.Apps.PackageManager | Measure-Object -Property length -Maximum).Maximum + ($content.Apps.Source | Measure-Object -Property length -Maximum).Maximum + 3
+		[int]$maxlength = ($AppObject.name | Measure-Object -Property length -Maximum).Maximum
+		[int]$maxPackageManagerlength = ($AppObject.PackageManager | Measure-Object -Property length -Maximum).Maximum + ($AppObject.Source | Measure-Object -Property length -Maximum).Maximum + 3
 		Remove-Variable CheckInstalled -ErrorAction SilentlyContinue
-		if ($app.PackageManager -like 'Winget') {			
-			Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
-			Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
-			Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
+		$CheckWingetPackageMan = Get-Command winget.exe -ErrorAction SilentlyContinue
+		$CheckChocoPackageMan = Get-Command choco.exe -ErrorAction SilentlyContinue
+		if ($app.PackageManager -like 'Winget' -and $CheckWingetPackageMan) {
+			try {
+				Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
+				Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
+				Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
 
-			$CheckInstalled = Invoke-Expression -Command 'winget list' | Where-Object { $_ -match $app.id }
-			if ([string]::IsNullOrEmpty($CheckInstalled)) {
-				$Command = "winget install --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)" 
-				$null = Invoke-Expression -Command $Command | Where-Object { $_ }
-				if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
-				if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
-			} else {
-				Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
-				$CheckUpgrade = Invoke-Expression -Command "winget upgrade --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)"
-				if ($CheckUpgrade -like 'No applicable update found.') {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
-				else {Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen}
-			}
-		} elseif ($app.PackageManager -like 'Chocolatey') {
-			Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
-			Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
-			Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
+				$CheckInstalled = Invoke-Expression -Command 'winget list' | Where-Object { $_ -match $app.id }
+				if ([string]::IsNullOrEmpty($CheckInstalled)) {
+					$Command = "winget install --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)" 
+					$null = Invoke-Expression -Command $Command | Where-Object { $_ }
+					if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
+					if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
+				} else {
+					Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
+					$CheckUpgrade = Invoke-Expression -Command "winget upgrade --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)"
+					if ($CheckUpgrade -like 'No applicable update found.') {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
+					else {Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen}
+				}
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+		} elseif ($app.PackageManager -like 'Chocolatey' -and $CheckChocoPackageMan) {
+			try {
+				Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
+				Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
+				Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
 
-			$CheckInstalled = (choco list --local-only --limit-output $app.Name) -split '\|'
-			$CheckOnline = (choco search $app.name --limit-output) -split '\|'
-			if ([string]::IsNullOrEmpty($CheckInstalled)) {			
-				choco upgrade $($app.name) --source $($app.Source) --accept-license --limit-output -y | Out-Null
-				if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
-				if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
-			} else {
-				Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
-				if ([version]$CheckOnline[-1] -gt [version]$CheckInstalled[-1]) {
+				$CheckInstalled = (choco list --local-only --limit-output $app.Name) -split '\|'
+				$CheckOnline = (choco search $app.name --limit-output) -split '\|'
+				if ([string]::IsNullOrEmpty($CheckInstalled)) {			
 					choco upgrade $($app.name) --source $($app.Source) --accept-license --limit-output -y | Out-Null
-					Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen
-				} else {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
-			}
+					if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
+					if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
+				} else {
+					Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
+					if ([version]$CheckOnline[-1] -gt [version]$CheckInstalled[-1]) {
+						choco upgrade $($app.name) --source $($app.Source) --accept-license --limit-output -y | Out-Null
+						Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen
+					} else {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
+				}
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+		} else {
+			if (-not($CheckWingetPackageMan)) {Write-Error 'Winget is not installed.'}
+			if (-not($CheckChocoPackageMan)) {Write-Error 'Chocolatey is not installed.'}
 		}
 	}
 } #end Function

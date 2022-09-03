@@ -3,11 +3,11 @@
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
-# ModifiedOn:       2022/09/03 01:02:55
+# ModifiedOn:       2022/09/03 04:22:52
 # Synopsis:         Add an app to one more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -94,41 +94,43 @@ Function Add-PSPackageManAppToList {
 	}
 	process {
 		foreach ($NewApp in $SearchString) {
-			Write-Color '[Searching]', " $($NewApp)" -Color Yellow, Gray
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
-			[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
-			$SearchParams = $PSBoundParameters
-			[void]$SearchParams.Remove('ListName')
-			[void]$SearchParams.Remove('GithubUserID')
-			[void]$SearchParams.Remove('GitHubToken')
-			[void]$SearchParams.Remove('SearchString')
-			Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
-			if ($SearchResult.Count -eq 1) {
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-				$NewAppObject.Add([PSCustomObject]@{
-						Name           = $SearchResult.Name
-						Id             = $SearchResult.Id
-						PackageManager = $PackageManager
-						Source         = $SearchResult.source
-					})
-			} elseif ($SearchResult.Count -gt 1) {
-				Write-Color 'Please pick from below for', " $($NewApp)" -Color Gray, Yellow -LinesBefore 2 -LinesAfter 1
-				$index = 0
-				$SearchResult | ForEach-Object {
-					Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
-					$index++ 
-				}
-				Write-Host ''
-				[int]$PickIndex = Read-Host 'Choose'
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
-				$NewAppObject.Add([PSCustomObject]@{
-						Name           = $SearchResult[$PickIndex].Name
-						Id             = $SearchResult[$PickIndex].Id
-						PackageManager = $PackageManager
-						Source         = $SearchResult[$PickIndex].source
-					})
-			} else {Write-Error 'No App Found'}
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+			try {
+				Write-Color '[Searching]', " $($NewApp)" -Color Yellow, Gray
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] NewApp $($newapp)"
+				[System.Collections.Generic.List[PSCustomObject]]$SearchResult = @()
+				$SearchParams = $PSBoundParameters
+				[void]$SearchParams.Remove('ListName')
+				[void]$SearchParams.Remove('GithubUserID')
+				[void]$SearchParams.Remove('GitHubToken')
+				[void]$SearchParams.Remove('SearchString')
+				Search-PSPackageManApp -SearchString $NewApp @SearchParams | ForEach-Object {$SearchResult.Add($_)}
+				if ($SearchResult.Count -eq 1) {
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+					$NewAppObject.Add([PSCustomObject]@{
+							Name           = $SearchResult.Name
+							Id             = $SearchResult.Id
+							PackageManager = $PackageManager
+							Source         = $SearchResult.source
+						})
+				} elseif ($SearchResult.Count -gt 1) {
+					Write-Color 'Please pick from below for', " $($NewApp)" -Color Gray, Yellow -LinesBefore 2 -LinesAfter 1
+					$index = 0
+					$SearchResult | ForEach-Object {
+						Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]" -Color Yellow, Green, Cyan
+						$index++ 
+					}
+					Write-Host ''
+					[int]$PickIndex = Read-Host 'Choose'
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Adding to object"
+					$NewAppObject.Add([PSCustomObject]@{
+							Name           = $SearchResult[$PickIndex].Name
+							Id             = $SearchResult[$PickIndex].Id
+							PackageManager = $PackageManager
+							Source         = $SearchResult[$PickIndex].source
+						})
+				} else {Write-Error 'No App Found'}
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Done adding $($newapp)"
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 		}		
 	}
 	end {
@@ -137,23 +139,21 @@ Function Add-PSPackageManAppToList {
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
 				$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($List)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
 			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-
-			[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
-			$Content.Apps | ForEach-Object {
+			try {
+				[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
+				$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
 					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
 						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
 					} else {$AppObject.Add($_)}
 				}
-			$NewAppObject | ForEach-Object {
+				$NewAppObject | Where-Object {$_ -notlike $null} | ForEach-Object {
 					if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
 						Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
 					} else {$AppObject.Add($_)}
 				}
-			$AppObject = $AppObject | Where-Object {$_ -notlike $null}
-
-
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) END] Completing and sorting object"
-			$Content.Apps = $AppObject | Sort-Object -Property Name, PackageManager -Unique
+			$Content.Apps = $AppObject
 			$Content.ModifiedDate = "$(Get-Date -Format u)"
 			$content.ModifiedUser = "$($env:USERNAME.ToLower())@$($env:USERDNSDOMAIN.ToLower())"
 			try {
@@ -186,7 +186,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 10 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -280,11 +280,11 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 10 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
-# ModifiedOn:       2022/09/03 00:59:15
+# ModifiedOn:       2022/09/03 04:18:56
 # Synopsis:         Installs the apps from the GitHub Gist List.
 #############################################
  
@@ -315,12 +315,12 @@ Function Install-PSPackageManAppFromList {
 	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Install-PSPackageManAppFromList')]
 	[OutputType([System.Object[]])]
 	PARAM(
-		[Parameter(Mandatory = $true)]
+		[Parameter(Mandatory)]
 		[ValidateScript( { $IsAdmin = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 				if ($IsAdmin.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { $True }
 				else { Throw 'Must be running an elevated prompt.' } })]
 		[string[]]$ListName,
-		[Parameter(Mandatory = $true)]
+		[Parameter(Mandatory)]
 		[string]$GitHubUserID,
 		[Parameter(ParameterSetName = 'Public')]
 		[switch]$PublicGist,
@@ -348,52 +348,62 @@ Function Install-PSPackageManAppFromList {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
 			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($list)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-		$Content.Apps | ForEach-Object {
+		$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
 			if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
 				Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
 			} else {$AppObject.Add($_)}
 		}
 	}
 
+
 	foreach ($app in $AppObject) {
-		[int]$maxlength = ($content.Apps.name | Measure-Object -Property length -Maximum).Maximum
-		[int]$maxPackageManagerlength = ($content.Apps.PackageManager | Measure-Object -Property length -Maximum).Maximum + ($content.Apps.Source | Measure-Object -Property length -Maximum).Maximum + 3
+		[int]$maxlength = ($AppObject.name | Measure-Object -Property length -Maximum).Maximum
+		[int]$maxPackageManagerlength = ($AppObject.PackageManager | Measure-Object -Property length -Maximum).Maximum + ($AppObject.Source | Measure-Object -Property length -Maximum).Maximum + 3
 		Remove-Variable CheckInstalled -ErrorAction SilentlyContinue
-		if ($app.PackageManager -like 'Winget') {			
-			Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
-			Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
-			Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
+		$CheckWingetPackageMan = Get-Command winget.exe -ErrorAction SilentlyContinue
+		$CheckChocoPackageMan = Get-Command choco.exe -ErrorAction SilentlyContinue
+		if ($app.PackageManager -like 'Winget' -and $CheckWingetPackageMan) {
+			try {
+				Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
+				Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
+				Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
 
-			$CheckInstalled = Invoke-Expression -Command 'winget list' | Where-Object { $_ -match $app.id }
-			if ([string]::IsNullOrEmpty($CheckInstalled)) {
-				$Command = "winget install --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)" 
-				$null = Invoke-Expression -Command $Command | Where-Object { $_ }
-				if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
-				if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
-			} else {
-				Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
-				$CheckUpgrade = Invoke-Expression -Command "winget upgrade --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)"
-				if ($CheckUpgrade -like 'No applicable update found.') {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
-				else {Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen}
-			}
-		} elseif ($app.PackageManager -like 'Chocolatey') {
-			Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
-			Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
-			Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
+				$CheckInstalled = Invoke-Expression -Command 'winget list' | Where-Object { $_ -match $app.id }
+				if ([string]::IsNullOrEmpty($CheckInstalled)) {
+					$Command = "winget install --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)" 
+					$null = Invoke-Expression -Command $Command | Where-Object { $_ }
+					if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
+					if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
+				} else {
+					Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
+					$CheckUpgrade = Invoke-Expression -Command "winget upgrade --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)"
+					if ($CheckUpgrade -like 'No applicable update found.') {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
+					else {Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen}
+				}
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+		} elseif ($app.PackageManager -like 'Chocolatey' -and $CheckChocoPackageMan) {
+			try {
+				Write-Host '[Installing]' -NoNewline -ForegroundColor Yellow
+				Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
+				Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
 
-			$CheckInstalled = (choco list --local-only --limit-output $app.Name) -split '\|'
-			$CheckOnline = (choco search $app.name --limit-output) -split '\|'
-			if ([string]::IsNullOrEmpty($CheckInstalled)) {			
-				choco upgrade $($app.name) --source $($app.Source) --accept-license --limit-output -y | Out-Null
-				if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
-				if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
-			} else {
-				Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
-				if ([version]$CheckOnline[-1] -gt [version]$CheckInstalled[-1]) {
+				$CheckInstalled = (choco list --local-only --limit-output $app.Name) -split '\|'
+				$CheckOnline = (choco search $app.name --limit-output) -split '\|'
+				if ([string]::IsNullOrEmpty($CheckInstalled)) {			
 					choco upgrade $($app.name) --source $($app.Source) --accept-license --limit-output -y | Out-Null
-					Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen
-				} else {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
-			}
+					if ($LASTEXITCODE -ne 0) {Write-Host ('{0} ' -f ' Failed') -ForegroundColor Red}
+					if ($LASTEXITCODE -eq 0) {Write-Host ('{0} ' -f ' Completed') -ForegroundColor Green}
+				} else {
+					Write-Host ('{0} ' -f ' Already Installed') -ForegroundColor Yellow -NoNewline
+					if ([version]$CheckOnline[-1] -gt [version]$CheckInstalled[-1]) {
+						choco upgrade $($app.name) --source $($app.Source) --accept-license --limit-output -y | Out-Null
+						Write-Host ('{0} ' -f ' Upgrade Complete') -ForegroundColor DarkGreen
+					} else {Write-Host ('{0} ' -f ' No Upgrade') -ForegroundColor DarkCyan}
+				}
+			} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+		} else {
+			if (-not($CheckWingetPackageMan)) {Write-Error 'Winget is not installed.'}
+			if (-not($CheckChocoPackageMan)) {Write-Error 'Chocolatey is not installed.'}
 		}
 	}
 } #end Function
@@ -410,7 +420,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 4 of 10 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -530,7 +540,7 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 5 of 10 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -638,7 +648,7 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 6 of 10 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -725,11 +735,11 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 7 of 10 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
-# ModifiedOn:       2022/09/02 20:27:18
+# ModifiedOn:       2022/09/03 06:04:11
 # Synopsis:         Will search the winget and chocolatey repositories for apps
 #############################################
  
@@ -775,9 +785,54 @@ Function Search-PSPackageManApp {
 		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
 		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$Exact
+		[switch]$Exact,
+		[Parameter(ParameterSetName = 'MoreOptions')]
+		[switch]$ShowAppDetail
 	)
 	begin {
+		function AppDetails {
+			PARAM ($AppObject)
+
+			Write-Color 'Please pick from below for' -Color Gray -LinesBefore 2 -LinesAfter 1
+			$index = 0
+			$AppObject | ForEach-Object {
+				Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]", " $($_.source)" -Color Yellow, Green, Cyan, Gray
+				$index++ 
+			}
+			Write-Host ''
+			[int]$AskApp = Read-Host 'Index Number for App Details'
+			if ($AppObject[$AskApp].PackageManager -like 'Chocolatey') {
+				[System.Collections.Generic.List[pscustomobject]]$Result = @()
+				choco info $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) | Where-Object { $result.add($_) }
+				$ID = choco search $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) --Exact --limit-output
+				$descb = $Result.IndexOf(($Result | Where-Object {$_ -like '*Description:*'}))
+				[PSCustomObject]@{
+					Name        = $ID.split('|')[0]
+					Version     = $ID.split('|')[1]
+					Published   = ($Result | Where-Object {$_ -like '*Published:*'}).split('|')[1].replace('Published: ', $null).trim()
+					Downloads   = ($Result | Where-Object {$_ -like '*Downloads:*'}).split('|')[0].replace('Number of Downloads: ', $null).trim()
+					Summary     = ($Result | Where-Object {$_ -like '*Summary:*'}).replace('Summary: ', $null).trim()
+					Description = (($Result[$descb..($Result.count - 2)]).replace('Description: ', $null) | Out-String).trim()
+				}
+			}
+			if ($AppObject[$AskApp].PackageManager -like 'Winget') {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] starting winget search"
+				$Command = "winget show --accept-source-agreements  `"$($AppObject[$AskApp].id)`""
+				[System.Collections.Generic.List[pscustomobject]]$Result = @()
+				Invoke-Expression -Command $Command | Where-Object { $result.add($_) }
+				$descb = $Result.IndexOf(($Result | Where-Object {$_ -like 'Description:*'}))
+				$desce = $Result.IndexOf(($Result | Where-Object {$_ -like 'License:*'}))
+				[PSCustomObject]@{
+					Name        = ($Result | Where-Object {$_ -like 'Found*'}).replace('Found ', $null)
+					Version     = $Result | Where-Object {$_ -like 'Version:*'}
+					Publisher   = $Result | Where-Object {$_ -like 'Publisher:*'}
+					License     = $Result | Where-Object {$_ -like 'License:*'}
+					Category    = $Result | Where-Object {$_ -like 'Category:*'}
+					Pricing     = $Result | Where-Object {$_ -like 'Pricing:*'}
+					Description = (($Result[$descb..($desce - 1)]).replace('Description:', $null) | Out-String).trim()
+				}
+			}
+		}
 		function chocosearch {
 			PARAM($SearchString, $ChocoSource, $Exact)
 
@@ -799,14 +854,16 @@ Function Search-PSPackageManApp {
 					foreach ($app in $allapps) {
 						$appdetail = $app -split '\|'
 						$ChocoObject.add([pscustomobject]@{
-								Name    = $appdetail[0]
-								Id      = $appdetail[0]
-								version = $appdetail[1]
-								source  = $Source
+								Name           = $appdetail[0]
+								Id             = $appdetail[0]
+								version        = $appdetail[1]
+								PackageManager = 'Chocolatey'
+								source         = $Source
 							})
 					}
 					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Choco done"
-					$ChocoObject
+					if ($ShowAppDetail) {AppDetails $ChocoObject}
+					else {$ChocoObject}
 				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			} else {Write-Warning "Chocolatey is not installed.`nInstall it from https://chocolatey.org/install "}
 		}
@@ -827,17 +884,30 @@ Function Search-PSPackageManApp {
 						$begin = ($Result.IndexOf($Result -match '---') + 1)
 						$end = $Result.count
 						foreach ($line in ($Result[$($begin)..$($end)])) {
+							if ($line -like "*Tag*" -or $line -like "*Moniker*"){
+								$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
+								$WingetObject.add([pscustomobject]@{
+										Name           = ($splited[0..($splited.count - 4)] -join ' ')
+										id             = $splited[-5]
+										version        = $splited[-4]
+										PackageManager = 'Winget'
+										source         = $splited[-1]
+									})
+							}
+							else {
 							$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
 							$WingetObject.add([pscustomobject]@{
-									Name    = ($splited[0..($splited.count - 4)] -join ' ')
-									id      = $splited[-3]
-									version = $splited[-2]
-									source  = $splited[-1]
+									Name           = ($splited[0..($splited.count - 4)] -join ' ')
+									id             = $splited[-3]
+									version        = $splited[-2]
+									PackageManager = 'Winget'
+									source         = $splited[-1]
 								})
+							}
 						}
 						Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Winget done."
-						$WingetObject
-					}
+						if ($ShowAppDetail) {AppDetails $WingetObject}
+						else {$WingetObject}					}
 				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			} else {Write-Warning "Winget is not installed.`nInstall it from https://docs.microsoft.com/en-us/windows/package-manager/winget/ "}
 		}
@@ -875,11 +945,11 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 8 of 10 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44
-# ModifiedOn:       2022/09/02 23:20:19
+# ModifiedOn:       2022/09/03 05:33:40
 # Synopsis:         Show an app to one of the predefined GitHub Gist Lists.
 #############################################
  
@@ -892,6 +962,9 @@ Show an app to one of the predefined GitHub Gist Lists.
 
 .PARAMETER ListName
 Name of the list.
+
+.PARAMETER ShowAppDetail
+Show more detail about a selected app.
 
 .PARAMETER GitHubUserID
 User with access to the gist.
@@ -912,6 +985,7 @@ Function Show-PSPackageManApp {
 	PARAM(
 		[Parameter(Mandatory)]
 		[string[]]$ListName,
+		[switch]$ShowAppDetail,
 		[Parameter(Mandatory)]
 		[string]$GitHubUserID,
 		[Parameter(ParameterSetName = 'Public')]
@@ -934,6 +1008,7 @@ Function Show-PSPackageManApp {
 	} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
 
 	[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
+	$index = 0
 	foreach ($List in $ListName) {
 		try {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
@@ -942,16 +1017,53 @@ Function Show-PSPackageManApp {
 
 		$Content.Apps | ForEach-Object {
 			$AppObject.Add([PSCustomObject]@{
+					Index          = $index
 					ListName       = $List
 					Name           = $_.Name
 					ID             = $_.id
 					PackageManager = $_.PackageManager
 					Source         = $_.Source
 				})
+			$index++
 		}
 	}
-	$AppObject
-	
+	if ($ShowAppDetail) {
+		$AppObject | Format-Table -AutoSize -Wrap
+
+		[int]$AskApp = Read-Host 'Index Number for App Details'
+		if ($AppObject[$AskApp].PackageManager -like 'Chocolatey') {
+			[System.Collections.Generic.List[pscustomobject]]$Result = @()
+			choco info $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) | Where-Object { $result.add($_) }
+			$ID = choco search $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) --Exact --limit-output
+			$descb = $Result.IndexOf(($Result | Where-Object {$_ -like '*Description:*'}))
+			[PSCustomObject]@{
+				Name        = $ID.split('|')[0]
+				Version     = $ID.split('|')[1]
+				Published   = ($Result | Where-Object {$_ -like '*Published:*'}).split('|')[1].replace('Published: ', $null).trim()
+				Downloads   = ($Result | Where-Object {$_ -like '*Downloads:*'}).split('|')[0].replace('Number of Downloads: ', $null).trim()
+				Summary     = ($Result | Where-Object {$_ -like '*Summary:*'}).replace('Summary: ', $null).trim()
+				Description = (($Result[$descb..($Result.count - 2)]).replace('Description: ', $null) | Out-String).trim()
+			}
+		}
+		if ($AppObject[$AskApp].PackageManager -like 'Winget') {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] starting winget search"
+			$Command = "winget show --accept-source-agreements  `"$($AppObject[$AskApp].id)`""
+			[System.Collections.Generic.List[pscustomobject]]$Result = @()
+			Invoke-Expression -Command $Command | Where-Object { $result.add($_) }
+			$descb = $Result.IndexOf(($Result | Where-Object {$_ -like 'Description:*'}))
+			$desce = $Result.IndexOf(($Result | Where-Object {$_ -like 'License:*'}))
+			[PSCustomObject]@{
+				Name        = ($Result | Where-Object {$_ -like 'Found*'}).replace('Found ', $null)
+				Version     = $Result | Where-Object {$_ -like 'Version:*'}
+				Publisher   = $Result | Where-Object {$_ -like 'Publisher:*'}
+				License     = $Result | Where-Object {$_ -like 'License:*'}
+				Category    = $Result | Where-Object {$_ -like 'Category:*'}
+				Pricing     = $Result | Where-Object {$_ -like 'Pricing:*'}
+				Description = (($Result[$descb..($desce - 1)]).replace('Description:', $null) | Out-String).trim()
+			}
+		}
+	} else {$AppObject}
+
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
@@ -966,7 +1078,7 @@ Export-ModuleMember -Function Show-PSPackageManApp
 ######## Function 9 of 10 ##################
 # Function:         Show-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -1054,7 +1166,7 @@ Export-ModuleMember -Function Show-PSPackageManAppList
 ######## Function 10 of 10 ##################
 # Function:         Show-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.3
+# ModuleVersion:    0.1.4.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36

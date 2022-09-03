@@ -84,9 +84,54 @@ Function Search-PSPackageManApp {
 		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
 		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$Exact
+		[switch]$Exact,
+		[Parameter(ParameterSetName = 'MoreOptions')]
+		[switch]$ShowAppDetail
 	)
 	begin {
+		function AppDetails {
+			PARAM ($AppObject)
+
+			Write-Color 'Please pick from below for' -Color Gray -LinesBefore 2 -LinesAfter 1
+			$index = 0
+			$AppObject | ForEach-Object {
+				Write-Color "$($index)) ", "$($_.name)", " [$($_.version)]", " $($_.source)" -Color Yellow, Green, Cyan, Gray
+				$index++ 
+			}
+			Write-Host ''
+			[int]$AskApp = Read-Host 'Index Number for App Details'
+			if ($AppObject[$AskApp].PackageManager -like 'Chocolatey') {
+				[System.Collections.Generic.List[pscustomobject]]$Result = @()
+				choco info $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) | Where-Object { $result.add($_) }
+				$ID = choco search $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) --Exact --limit-output
+				$descb = $Result.IndexOf(($Result | Where-Object {$_ -like '*Description:*'}))
+				[PSCustomObject]@{
+					Name        = $ID.split('|')[0]
+					Version     = $ID.split('|')[1]
+					Published   = ($Result | Where-Object {$_ -like '*Published:*'}).split('|')[1].replace('Published: ', $null).trim()
+					Downloads   = ($Result | Where-Object {$_ -like '*Downloads:*'}).split('|')[0].replace('Number of Downloads: ', $null).trim()
+					Summary     = ($Result | Where-Object {$_ -like '*Summary:*'}).replace('Summary: ', $null).trim()
+					Description = (($Result[$descb..($Result.count - 2)]).replace('Description: ', $null) | Out-String).trim()
+				}
+			}
+			if ($AppObject[$AskApp].PackageManager -like 'Winget') {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] starting winget search"
+				$Command = "winget show --accept-source-agreements  `"$($AppObject[$AskApp].id)`""
+				[System.Collections.Generic.List[pscustomobject]]$Result = @()
+				Invoke-Expression -Command $Command | Where-Object { $result.add($_) }
+				$descb = $Result.IndexOf(($Result | Where-Object {$_ -like 'Description:*'}))
+				$desce = $Result.IndexOf(($Result | Where-Object {$_ -like 'License:*'}))
+				[PSCustomObject]@{
+					Name        = ($Result | Where-Object {$_ -like 'Found*'}).replace('Found ', $null)
+					Version     = $Result | Where-Object {$_ -like 'Version:*'}
+					Publisher   = $Result | Where-Object {$_ -like 'Publisher:*'}
+					License     = $Result | Where-Object {$_ -like 'License:*'}
+					Category    = $Result | Where-Object {$_ -like 'Category:*'}
+					Pricing     = $Result | Where-Object {$_ -like 'Pricing:*'}
+					Description = (($Result[$descb..($desce - 1)]).replace('Description:', $null) | Out-String).trim()
+				}
+			}
+		}
 		function chocosearch {
 			PARAM($SearchString, $ChocoSource, $Exact)
 
@@ -108,14 +153,16 @@ Function Search-PSPackageManApp {
 					foreach ($app in $allapps) {
 						$appdetail = $app -split '\|'
 						$ChocoObject.add([pscustomobject]@{
-								Name    = $appdetail[0]
-								Id      = $appdetail[0]
-								version = $appdetail[1]
-								source  = $Source
+								Name           = $appdetail[0]
+								Id             = $appdetail[0]
+								version        = $appdetail[1]
+								PackageManager = 'Chocolatey'
+								source         = $Source
 							})
 					}
 					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Choco done"
-					$ChocoObject
+					if ($ShowAppDetail) {AppDetails $ChocoObject}
+					else {$ChocoObject}
 				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			} else {Write-Warning "Chocolatey is not installed.`nInstall it from https://chocolatey.org/install "}
 		}
@@ -136,17 +183,30 @@ Function Search-PSPackageManApp {
 						$begin = ($Result.IndexOf($Result -match '---') + 1)
 						$end = $Result.count
 						foreach ($line in ($Result[$($begin)..$($end)])) {
+							if ($line -like "*Tag*" -or $line -like "*Moniker*"){
+								$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
+								$WingetObject.add([pscustomobject]@{
+										Name           = ($splited[0..($splited.count - 4)] -join ' ')
+										id             = $splited[-5]
+										version        = $splited[-4]
+										PackageManager = 'Winget'
+										source         = $splited[-1]
+									})
+							}
+							else {
 							$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
 							$WingetObject.add([pscustomobject]@{
-									Name    = ($splited[0..($splited.count - 4)] -join ' ')
-									id      = $splited[-3]
-									version = $splited[-2]
-									source  = $splited[-1]
+									Name           = ($splited[0..($splited.count - 4)] -join ' ')
+									id             = $splited[-3]
+									version        = $splited[-2]
+									PackageManager = 'Winget'
+									source         = $splited[-1]
 								})
+							}
 						}
 						Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Winget done."
-						$WingetObject
-					}
+						if ($ShowAppDetail) {AppDetails $WingetObject}
+						else {$WingetObject}					}
 				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			} else {Write-Warning "Winget is not installed.`nInstall it from https://docs.microsoft.com/en-us/windows/package-manager/winget/ "}
 		}

@@ -51,6 +51,9 @@ Show an app to one of the predefined GitHub Gist Lists.
 .PARAMETER ListName
 Name of the list.
 
+.PARAMETER ShowAppDetail
+Show more detail about a selected app.
+
 .PARAMETER GitHubUserID
 User with access to the gist.
 
@@ -70,6 +73,7 @@ Function Show-PSPackageManApp {
 	PARAM(
 		[Parameter(Mandatory)]
 		[string[]]$ListName,
+		[switch]$ShowAppDetail,
 		[Parameter(Mandatory)]
 		[string]$GitHubUserID,
 		[Parameter(ParameterSetName = 'Public')]
@@ -92,6 +96,7 @@ Function Show-PSPackageManApp {
 	} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
 
 	[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
+	$index = 0
 	foreach ($List in $ListName) {
 		try {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
@@ -100,16 +105,53 @@ Function Show-PSPackageManApp {
 
 		$Content.Apps | ForEach-Object {
 			$AppObject.Add([PSCustomObject]@{
+					Index          = $index
 					ListName       = $List
 					Name           = $_.Name
 					ID             = $_.id
 					PackageManager = $_.PackageManager
 					Source         = $_.Source
 				})
+			$index++
 		}
 	}
-	$AppObject
-	
+	if ($ShowAppDetail) {
+		$AppObject | Format-Table -AutoSize -Wrap
+
+		[int]$AskApp = Read-Host 'Index Number for App Details'
+		if ($AppObject[$AskApp].PackageManager -like 'Chocolatey') {
+			[System.Collections.Generic.List[pscustomobject]]$Result = @()
+			choco info $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) | Where-Object { $result.add($_) }
+			$ID = choco search $($AppObject[$AskApp].Name) --source $($AppObject[$AskApp].Source) --Exact --limit-output
+			$descb = $Result.IndexOf(($Result | Where-Object {$_ -like '*Description:*'}))
+			[PSCustomObject]@{
+				Name        = $ID.split('|')[0]
+				Version     = $ID.split('|')[1]
+				Published   = ($Result | Where-Object {$_ -like '*Published:*'}).split('|')[1].replace('Published: ', $null).trim()
+				Downloads   = ($Result | Where-Object {$_ -like '*Downloads:*'}).split('|')[0].replace('Number of Downloads: ', $null).trim()
+				Summary     = ($Result | Where-Object {$_ -like '*Summary:*'}).replace('Summary: ', $null).trim()
+				Description = (($Result[$descb..($Result.count - 2)]).replace('Description: ', $null) | Out-String).trim()
+			}
+		}
+		if ($AppObject[$AskApp].PackageManager -like 'Winget') {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] starting winget search"
+			$Command = "winget show --accept-source-agreements  `"$($AppObject[$AskApp].id)`""
+			[System.Collections.Generic.List[pscustomobject]]$Result = @()
+			Invoke-Expression -Command $Command | Where-Object { $result.add($_) }
+			$descb = $Result.IndexOf(($Result | Where-Object {$_ -like 'Description:*'}))
+			$desce = $Result.IndexOf(($Result | Where-Object {$_ -like 'License:*'}))
+			[PSCustomObject]@{
+				Name        = ($Result | Where-Object {$_ -like 'Found*'}).replace('Found ', $null)
+				Version     = $Result | Where-Object {$_ -like 'Version:*'}
+				Publisher   = $Result | Where-Object {$_ -like 'Publisher:*'}
+				License     = $Result | Where-Object {$_ -like 'License:*'}
+				Category    = $Result | Where-Object {$_ -like 'Category:*'}
+				Pricing     = $Result | Where-Object {$_ -like 'Pricing:*'}
+				Description = (($Result[$descb..($desce - 1)]).replace('Description:', $null) | Out-String).trim()
+			}
+		}
+	} else {$AppObject}
+
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
