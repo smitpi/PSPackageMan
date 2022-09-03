@@ -1,4 +1,4 @@
-﻿#region Public Functions
+#region Public Functions
 #region Add-PSPackageManAppToList.ps1
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
