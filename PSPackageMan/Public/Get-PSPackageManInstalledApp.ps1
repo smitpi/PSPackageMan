@@ -63,11 +63,11 @@ Export the result to a report file. (Excel or html). Or select Host to display t
 Where to save the report.
 
 .EXAMPLE
-Show-PSPackageManInstalledApp -PackageManager AllManagers -Export HTML -ReportPath C:\temp
+Get-PSPackageManInstalledApp -PackageManager AllManagers -Export HTML -ReportPath C:\temp
 
 #>
-Function Show-PSPackageManInstalledApp {
-	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Show-PSPackageManInstalledApp')]
+Function Get-PSPackageManInstalledApp {
+	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Get-PSPackageManInstalledApp')]
 	[OutputType([System.Object[]])]
 	PARAM(
 		[ValidateSet('Chocolatey', 'Winget', 'AllManagers')]

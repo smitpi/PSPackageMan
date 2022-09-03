@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Show-PSPackageManInstalledApp
+# Get-PSPackageManInstalledApp
 
 ## SYNOPSIS
 This will display a list of installed apps, and their details in the repositories.
@@ -13,7 +13,7 @@ This will display a list of installed apps, and their details in the repositorie
 ## SYNTAX
 
 ```
-Show-PSPackageManInstalledApp [[-PackageManager] <String>] [[-Export] <String>] [[-ReportPath] <DirectoryInfo>]
+Get-PSPackageManInstalledApp [[-PackageManager] <String>] [[-Export] <String>] [[-ReportPath] <DirectoryInfo>]
  [<CommonParameters>]
 ```
 
@@ -24,7 +24,7 @@ This will display a list of installed apps, and their details in the repositorie
 
 ### EXAMPLE 1
 ```
-Show-PSPackageManInstalledApp -PackageManager AllManagers -Export HTML -ReportPath C:\temp
+Get-PSPackageManInstalledApp -PackageManager AllManagers -Export HTML -ReportPath C:\temp
 ```
 
 ## PARAMETERS

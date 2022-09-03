@@ -3,11 +3,11 @@
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
-# ModifiedOn:       2022/09/03 07:05:02
+# ModifiedOn:       2022/09/03 08:36:08
 # Synopsis:         Add an app to one more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -170,7 +170,7 @@ Function Add-PSPackageManAppToList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Show-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
 }
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ListName -ScriptBlock $scriptblock
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ChocoSource -ScriptBlock {choco source --limit-output | ForEach-Object {$_.split('|')[0]}}
@@ -182,7 +182,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 10 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -272,15 +272,270 @@ Function Add-PSPackageManDefaultsToProfile {
 Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 #endregion
  
-#region Install-PSPackageManAppFromList.ps1
+#region Get-PSPackageManAppList.ps1
 ######## Function 3 of 10 ##################
+# Function:         Get-PSPackageManAppList
+# Module:           PSPackageMan
+# ModuleVersion:    0.1.12.0
+# Author:           Pierre Smit
+# Company:          HTPCZA Tech
+# CreatedOn:        2022/09/02 19:24:07
+# ModifiedOn:       2022/09/03 08:36:07
+# Synopsis:         Show a List of all the GitHub Gist app Lists.
+#############################################
+ 
+<#
+.SYNOPSIS
+Show a List of all the GitHub Gist app Lists.
+
+.DESCRIPTION
+Show a List of all the GitHub Gist app Lists.
+
+.PARAMETER GitHubUserID
+User with access to the gist.
+
+.PARAMETER PublicGist
+Select if the list is hosted publicly.
+
+.PARAMETER GitHubToken
+The token for that gist.
+
+.EXAMPLE
+Get-PSPackageManAppList -GitHubUserID $user -PublicGist
+
+#>
+Function Get-PSPackageManAppList {
+	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Get-PSPackageManAppList')]
+	[OutputType([System.Object[]])]
+	PARAM(
+		[Parameter(Mandatory)]
+		[string]$GitHubUserID, 
+		[Parameter(ParameterSetName = 'Public')]
+		[switch]$PublicGist,
+		[Parameter(ParameterSetName = 'Private')]
+		[string]$GitHubToken
+	)
+
+	
+	try {
+		Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Connect to gist"
+		$headers = @{}
+		$auth = '{0}:{1}' -f $GitHubUserID, $GitHubToken
+		$bytes = [System.Text.Encoding]::ASCII.GetBytes($auth)
+		$base64 = [System.Convert]::ToBase64String($bytes)
+		$headers.Authorization = 'Basic {0}' -f $base64
+
+		$url = 'https://api.github.com/users/{0}/gists' -f $GitHubUserID
+		$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
+		$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
+	} catch {throw "Can't connect to gist:`n $($_.Exception.Message)"}
+
+
+	[System.Collections.ArrayList]$GistObject = @()
+	Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Create object"
+	$PRGist.files | Get-Member -MemberType NoteProperty | ForEach-Object {
+		$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($_.name)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+		if ($Content.modifiedDate -notlike 'Unknown') {
+			$modifiedDate = [datetime]$Content.ModifiedDate
+			$modifiedUser = $Content.ModifiedUser
+		} else { 
+			$modifiedDate = 'Unknown'
+			$modifiedUser = 'Unknown'
+		}
+		[void]$GistObject.Add([PSCustomObject]@{
+				Name         = $_.Name
+				Description  = $Content.Description
+				Date         = [datetime]$Content.CreateDate
+				Author       = $Content.Author
+				ModifiedDate = $modifiedDate
+				ModifiedUser = $modifiedUser
+			})
+	}
+
+	$GistObject
+	Write-Verbose "[$(Get-Date -Format HH:mm:ss) DONE]"
+
+} #end Function
+ 
+Export-ModuleMember -Function Get-PSPackageManAppList
+#endregion
+ 
+#region Get-PSPackageManInstalledApp.ps1
+######## Function 4 of 10 ##################
+# Function:         Get-PSPackageManInstalledApp
+# Module:           PSPackageMan
+# ModuleVersion:    0.1.12.0
+# Author:           Pierre Smit
+# Company:          HTPCZA Tech
+# CreatedOn:        2022/09/02 19:58:36
+# ModifiedOn:       2022/09/03 08:37:18
+# Synopsis:         This will display a list of installed apps, and their details in the repositories.
+#############################################
+ 
+<#
+.SYNOPSIS
+This will display a list of installed apps, and their details in the repositories.
+
+.DESCRIPTION
+This will display a list of installed apps, and their details in the repositories.
+
+.PARAMETER PackageManager
+Which package manager to query installed apps with.
+
+.PARAMETER Export
+Export the result to a report file. (Excel or html). Or select Host to display the object on screen.
+
+.PARAMETER ReportPath
+Where to save the report.
+
+.EXAMPLE
+Get-PSPackageManInstalledApp -PackageManager AllManagers -Export HTML -ReportPath C:\temp
+
+#>
+Function Get-PSPackageManInstalledApp {
+	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Get-PSPackageManInstalledApp')]
+	[OutputType([System.Object[]])]
+	PARAM(
+		[ValidateSet('Chocolatey', 'Winget', 'AllManagers')]
+		[string]$PackageManager,
+							
+		[ValidateSet('Excel', 'HTML', 'Host')]
+		[string]$Export = 'Host',
+
+		[ValidateScript( { if (Test-Path $_) { $true }
+				else { New-Item -Path $_ -ItemType Directory -Force | Out-Null; $true }
+			})]
+		[System.IO.DirectoryInfo]$ReportPath = 'C:\Temp'
+	)
+
+	function getwinget {
+		Write-Host '[Collecting]' -ForegroundColor Yellow -NoNewline
+		Write-Host ' Winget Apps List' -ForegroundColor Gray 
+		try {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting Winget extract"
+			Invoke-Expression -Command "winget export -o $($env:tmp)\winget-extract.json" | Out-Null
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Winget config import"
+			$importlist = Get-Content "$($env:tmp)\winget-extract.json" | ConvertFrom-Json
+			$FinalList = $importlist.Sources.Packages | ForEach-Object {
+				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
+				Write-Host " AppID: $($_.PackageIdentifier)" -ForegroundColor Gray 
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($_.PackageIdentifier)"		
+				Search-PSPackageManApp -SearchString $_.PackageIdentifier -PackageManager Winget -MoreOptions -Exact
+			}
+			$FinalList
+		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+	}
+	function getchoco {
+		Write-Host '[Collecting]' -ForegroundColor Yellow -NoNewline
+		Write-Host ' Chocolatey Apps List' -ForegroundColor Gray 
+		try {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting Choco extract"
+			$allapps = choco list --local-only --limit-output
+			$finallist = foreach ($app in $allapps) {
+				$appdetail = $app -split '\|'
+				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
+				Write-Host " AppID: $($appdetail[0])" -ForegroundColor Gray 
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($appdetail[0])"
+				Search-PSPackageManApp -SearchString $appdetail[0] -PackageManager Chocolatey -MoreOptions -Exact
+			}
+			$FinalList
+		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+	}
+
+	if ($PackageManager -like 'Winget') { $Winget = getwinget}
+	if ($PackageManager -like 'Chocolatey') { $Choco = getchoco}
+	if ($PackageManager -like 'AllManagers') {
+		$Winget = getwinget
+		$Choco = getchoco
+	}
+
+	if ($Export -eq 'Excel') { 
+		$ExcelOptions = @{
+			Path             = $(Join-Path -Path $ReportPath -ChildPath "\InstalledApplist-$(Get-Date -Format yyyy.MM.dd-HH.mm).xlsx")
+			AutoSize         = $True
+			AutoFilter       = $True
+			TitleBold        = $True
+			TitleSize        = '28'
+			TitleFillPattern = 'LightTrellis'
+			TableStyle       = 'Light20'
+			FreezeTopRow     = $True
+			FreezePane       = '3'
+		}
+		if ($winget) {$winget | Export-Excel -Title 'Winget Installed App list' -WorksheetName Winget @ExcelOptions}
+		if ($Choco) {$Choco | Export-Excel -Title 'Choco Installed App list' -WorksheetName Choco @ExcelOptions}
+	}
+	if ($Export -eq 'HTML') { 
+		$script:TableSettings = @{
+			Style           = 'cell-border'
+			TextWhenNoData  = 'No Data to display here'
+			Buttons         = 'searchBuilder', 'pdfHtml5', 'excelHtml5'
+			FixedHeader     = $true
+			HideFooter      = $true
+			SearchHighlight = $true
+			PagingStyle     = 'full'
+			PagingLength    = 10
+		}
+		$script:SectionSettings = @{
+			BackgroundColor       = 'grey'
+			CanCollapse           = $true
+			HeaderBackGroundColor = '#2b1200'
+			HeaderTextAlignment   = 'center'
+			HeaderTextColor       = '#f37000'
+			HeaderTextSize        = '15'
+			BorderRadius          = '20px'
+		}
+		$script:TableSectionSettings = @{
+			BackgroundColor       = 'white'
+			CanCollapse           = $true
+			HeaderBackGroundColor = '#f37000'
+			HeaderTextAlignment   = 'center'
+			HeaderTextColor       = '#2b1200'
+			HeaderTextSize        = '15'
+		}
+		$script:TabSettings = @{
+			TextTransform = 'uppercase'
+			IconBrands    = 'mix'
+			TextSize      = '16' 
+			TextColor     = '#00203F'
+			IconSize      = '16'
+			IconColor     = '#00203F'
+		}
+
+		$ReportTitle = 'Installed Apps List'
+		$HeadingText = "$($ReportTitle) [$(Get-Date -Format dd) $(Get-Date -Format MMMM) $(Get-Date -Format yyyy) $(Get-Date -Format HH:mm)]"
+		New-HTML -TitleText $($ReportTitle) -FilePath $(Join-Path -Path $ReportPath -ChildPath "\InstalledApplist-$(Get-Date -Format yyyy.MM.dd-HH.mm).html") {
+			New-HTMLHeader {
+				New-HTMLText -FontSize 20 -FontStyle normal -Color '#00203F' -Alignment left -Text $HeadingText
+			}
+			if ($winget) { New-HTMLTab -Name 'Winget Installed App list' @TabSettings -HtmlData {New-HTMLSection @TableSectionSettings { New-HTMLTable -DataTable $($winget) @TableSettings}}}
+			if ($Choco) { New-HTMLTab -Name 'Choco Installed App list' @TabSettings -HtmlData {New-HTMLSection @TableSectionSettings { New-HTMLTable -DataTable $($Choco) @TableSettings}}}
+		}
+	}
+	if ($Export -eq 'Host') { 
+		if ($PackageManager -like 'Winget') { return $Winget}
+		if ($PackageManager -like 'Chocolatey') { return $Choco}
+		if ($PackageManager -like 'AllManagers') {
+			return [PSCustomObject]@{
+				Winget     = $Winget
+				Chocolatey = $Choco
+			}
+		}
+	}
+	Write-Verbose "[$(Get-Date -Format HH:mm:ss) Complete]"
+} #end Function
+ 
+Export-ModuleMember -Function Get-PSPackageManInstalledApp
+#endregion
+ 
+#region Install-PSPackageManAppFromList.ps1
+######## Function 5 of 10 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
-# ModifiedOn:       2022/09/03 04:18:56
+# ModifiedOn:       2022/09/03 08:36:07
 # Synopsis:         Installs the apps from the GitHub Gist List.
 #############################################
  
@@ -405,7 +660,7 @@ Function Install-PSPackageManAppFromList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Show-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
 }
 Register-ArgumentCompleter -CommandName Install-PSPackageManAppFromList -ParameterName ListName -ScriptBlock $scriptblock
  
@@ -413,10 +668,10 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 #endregion
  
 #region New-PSPackageManList.ps1
-######## Function 4 of 10 ##################
+######## Function 6 of 10 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -533,14 +788,14 @@ Export-ModuleMember -Function New-PSPackageManList
 #endregion
  
 #region Remove-PSPackageManAppFromList.ps1
-######## Function 5 of 10 ##################
+######## Function 7 of 10 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
-# ModifiedOn:       2022/09/02 20:03:48
+# ModifiedOn:       2022/09/03 08:36:07
 # Synopsis:         Remove an app from one or more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -633,7 +888,7 @@ Function Remove-PSPackageManAppFromList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Show-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
 }
 Register-ArgumentCompleter -CommandName Remove-PSPackageManAppFromList -ParameterName ListName -ScriptBlock $scriptblock
  
@@ -641,14 +896,14 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 #endregion
  
 #region Remove-PSPackageManList.ps1
-######## Function 6 of 10 ##################
+######## Function 8 of 10 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
-# ModifiedOn:       2022/09/02 20:03:49
+# ModifiedOn:       2022/09/03 08:36:07
 # Synopsis:         Deletes a list from your GitHub Gist.
 #############################################
  
@@ -720,7 +975,7 @@ Function Remove-PSPackageManList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Show-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
 }
 Register-ArgumentCompleter -CommandName Remove-PSPackageManList -ParameterName ListName -ScriptBlock $scriptblock
  
@@ -728,10 +983,10 @@ Export-ModuleMember -Function Remove-PSPackageManList
 #endregion
  
 #region Search-PSPackageManApp.ps1
-######## Function 7 of 10 ##################
+######## Function 9 of 10 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
@@ -930,14 +1185,14 @@ Export-ModuleMember -Function Search-PSPackageManApp
 #endregion
  
 #region Show-PSPackageManApp.ps1
-######## Function 8 of 10 ##################
+######## Function 10 of 10 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
+# ModuleVersion:    0.1.12.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44
-# ModifiedOn:       2022/09/03 06:54:56
+# ModifiedOn:       2022/09/03 08:36:07
 # Synopsis:         Show an app to one of the predefined GitHub Gist Lists.
 #############################################
  
@@ -1055,266 +1310,11 @@ Function Show-PSPackageManApp {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Show-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
 }
 Register-ArgumentCompleter -CommandName Show-PSPackageManApp -ParameterName ListName -ScriptBlock $scriptblock
  
 Export-ModuleMember -Function Show-PSPackageManApp
-#endregion
- 
-#region Show-PSPackageManAppList.ps1
-######## Function 9 of 10 ##################
-# Function:         Show-PSPackageManAppList
-# Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
-# Author:           Pierre Smit
-# Company:          HTPCZA Tech
-# CreatedOn:        2022/09/02 19:24:07
-# ModifiedOn:       2022/09/02 23:08:22
-# Synopsis:         Show a List of all the GitHub Gist app Lists.
-#############################################
- 
-<#
-.SYNOPSIS
-Show a List of all the GitHub Gist app Lists.
-
-.DESCRIPTION
-Show a List of all the GitHub Gist app Lists.
-
-.PARAMETER GitHubUserID
-User with access to the gist.
-
-.PARAMETER PublicGist
-Select if the list is hosted publicly.
-
-.PARAMETER GitHubToken
-The token for that gist.
-
-.EXAMPLE
-Show-PSPackageManAppList -GitHubUserID $user -PublicGist
-
-#>
-Function Show-PSPackageManAppList {
-	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Show-PSPackageManAppList')]
-	[OutputType([System.Object[]])]
-	PARAM(
-		[Parameter(Mandatory)]
-		[string]$GitHubUserID, 
-		[Parameter(ParameterSetName = 'Public')]
-		[switch]$PublicGist,
-		[Parameter(ParameterSetName = 'Private')]
-		[string]$GitHubToken
-	)
-
-	
-	try {
-		Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Connect to gist"
-		$headers = @{}
-		$auth = '{0}:{1}' -f $GitHubUserID, $GitHubToken
-		$bytes = [System.Text.Encoding]::ASCII.GetBytes($auth)
-		$base64 = [System.Convert]::ToBase64String($bytes)
-		$headers.Authorization = 'Basic {0}' -f $base64
-
-		$url = 'https://api.github.com/users/{0}/gists' -f $GitHubUserID
-		$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
-		$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
-	} catch {throw "Can't connect to gist:`n $($_.Exception.Message)"}
-
-
-	[System.Collections.ArrayList]$GistObject = @()
-	Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Create object"
-	$PRGist.files | Get-Member -MemberType NoteProperty | ForEach-Object {
-		$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($_.name)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
-		if ($Content.modifiedDate -notlike 'Unknown') {
-			$modifiedDate = [datetime]$Content.ModifiedDate
-			$modifiedUser = $Content.ModifiedUser
-		} else { 
-			$modifiedDate = 'Unknown'
-			$modifiedUser = 'Unknown'
-		}
-		[void]$GistObject.Add([PSCustomObject]@{
-				Name         = $_.Name
-				Description  = $Content.Description
-				Date         = [datetime]$Content.CreateDate
-				Author       = $Content.Author
-				ModifiedDate = $modifiedDate
-				ModifiedUser = $modifiedUser
-			})
-	}
-
-	$GistObject
-	Write-Verbose "[$(Get-Date -Format HH:mm:ss) DONE]"
-
-} #end Function
- 
-Export-ModuleMember -Function Show-PSPackageManAppList
-#endregion
- 
-#region Show-PSPackageManInstalledApp.ps1
-######## Function 10 of 10 ##################
-# Function:         Show-PSPackageManInstalledApp
-# Module:           PSPackageMan
-# ModuleVersion:    0.1.11.0
-# Author:           Pierre Smit
-# Company:          HTPCZA Tech
-# CreatedOn:        2022/09/02 19:58:36
-# ModifiedOn:       2022/09/02 22:39:00
-# Synopsis:         This will display a list of installed apps, and their details in the repositories.
-#############################################
- 
-<#
-.SYNOPSIS
-This will display a list of installed apps, and their details in the repositories.
-
-.DESCRIPTION
-This will display a list of installed apps, and their details in the repositories.
-
-.PARAMETER PackageManager
-Which package manager to query installed apps with.
-
-.PARAMETER Export
-Export the result to a report file. (Excel or html). Or select Host to display the object on screen.
-
-.PARAMETER ReportPath
-Where to save the report.
-
-.EXAMPLE
-Show-PSPackageManInstalledApp -PackageManager AllManagers -Export HTML -ReportPath C:\temp
-
-#>
-Function Show-PSPackageManInstalledApp {
-	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Show-PSPackageManInstalledApp')]
-	[OutputType([System.Object[]])]
-	PARAM(
-		[ValidateSet('Chocolatey', 'Winget', 'AllManagers')]
-		[string]$PackageManager,
-							
-		[ValidateSet('Excel', 'HTML', 'Host')]
-		[string]$Export = 'Host',
-
-		[ValidateScript( { if (Test-Path $_) { $true }
-				else { New-Item -Path $_ -ItemType Directory -Force | Out-Null; $true }
-			})]
-		[System.IO.DirectoryInfo]$ReportPath = 'C:\Temp'
-	)
-
-	function getwinget {
-		Write-Host '[Collecting]' -ForegroundColor Yellow -NoNewline
-		Write-Host ' Winget Apps List' -ForegroundColor Gray 
-		try {
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting Winget extract"
-			Invoke-Expression -Command "winget export -o $($env:tmp)\winget-extract.json" | Out-Null
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Winget config import"
-			$importlist = Get-Content "$($env:tmp)\winget-extract.json" | ConvertFrom-Json
-			$FinalList = $importlist.Sources.Packages | ForEach-Object {
-				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
-				Write-Host " AppID: $($_.PackageIdentifier)" -ForegroundColor Gray 
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($_.PackageIdentifier)"		
-				Search-PSPackageManApp -SearchString $_.PackageIdentifier -PackageManager Winget -MoreOptions -Exact
-			}
-			$FinalList
-		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-	}
-	function getchoco {
-		Write-Host '[Collecting]' -ForegroundColor Yellow -NoNewline
-		Write-Host ' Chocolatey Apps List' -ForegroundColor Gray 
-		try {
-			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting Choco extract"
-			$allapps = choco list --local-only --limit-output
-			$finallist = foreach ($app in $allapps) {
-				$appdetail = $app -split '\|'
-				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
-				Write-Host " AppID: $($appdetail[0])" -ForegroundColor Gray 
-				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($appdetail[0])"
-				Search-PSPackageManApp -SearchString $appdetail[0] -PackageManager Chocolatey -MoreOptions -Exact
-			}
-			$FinalList
-		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-	}
-
-	if ($PackageManager -like 'Winget') { $Winget = getwinget}
-	if ($PackageManager -like 'Chocolatey') { $Choco = getchoco}
-	if ($PackageManager -like 'AllManagers') {
-		$Winget = getwinget
-		$Choco = getchoco
-	}
-
-	if ($Export -eq 'Excel') { 
-		$ExcelOptions = @{
-			Path             = $(Join-Path -Path $ReportPath -ChildPath "\InstalledApplist-$(Get-Date -Format yyyy.MM.dd-HH.mm).xlsx")
-			AutoSize         = $True
-			AutoFilter       = $True
-			TitleBold        = $True
-			TitleSize        = '28'
-			TitleFillPattern = 'LightTrellis'
-			TableStyle       = 'Light20'
-			FreezeTopRow     = $True
-			FreezePane       = '3'
-		}
-		if ($winget) {$winget | Export-Excel -Title 'Winget Installed App list' -WorksheetName Winget @ExcelOptions}
-		if ($Choco) {$Choco | Export-Excel -Title 'Choco Installed App list' -WorksheetName Choco @ExcelOptions}
-	}
-	if ($Export -eq 'HTML') { 
-		$script:TableSettings = @{
-			Style           = 'cell-border'
-			TextWhenNoData  = 'No Data to display here'
-			Buttons         = 'searchBuilder', 'pdfHtml5', 'excelHtml5'
-			FixedHeader     = $true
-			HideFooter      = $true
-			SearchHighlight = $true
-			PagingStyle     = 'full'
-			PagingLength    = 10
-		}
-		$script:SectionSettings = @{
-			BackgroundColor       = 'grey'
-			CanCollapse           = $true
-			HeaderBackGroundColor = '#2b1200'
-			HeaderTextAlignment   = 'center'
-			HeaderTextColor       = '#f37000'
-			HeaderTextSize        = '15'
-			BorderRadius          = '20px'
-		}
-		$script:TableSectionSettings = @{
-			BackgroundColor       = 'white'
-			CanCollapse           = $true
-			HeaderBackGroundColor = '#f37000'
-			HeaderTextAlignment   = 'center'
-			HeaderTextColor       = '#2b1200'
-			HeaderTextSize        = '15'
-		}
-		$script:TabSettings = @{
-			TextTransform = 'uppercase'
-			IconBrands    = 'mix'
-			TextSize      = '16' 
-			TextColor     = '#00203F'
-			IconSize      = '16'
-			IconColor     = '#00203F'
-		}
-
-		$ReportTitle = 'Installed Apps List'
-		$HeadingText = "$($ReportTitle) [$(Get-Date -Format dd) $(Get-Date -Format MMMM) $(Get-Date -Format yyyy) $(Get-Date -Format HH:mm)]"
-		New-HTML -TitleText $($ReportTitle) -FilePath $(Join-Path -Path $ReportPath -ChildPath "\InstalledApplist-$(Get-Date -Format yyyy.MM.dd-HH.mm).html") {
-			New-HTMLHeader {
-				New-HTMLText -FontSize 20 -FontStyle normal -Color '#00203F' -Alignment left -Text $HeadingText
-			}
-			if ($winget) { New-HTMLTab -Name 'Winget Installed App list' @TabSettings -HtmlData {New-HTMLSection @TableSectionSettings { New-HTMLTable -DataTable $($winget) @TableSettings}}}
-			if ($Choco) { New-HTMLTab -Name 'Choco Installed App list' @TabSettings -HtmlData {New-HTMLSection @TableSectionSettings { New-HTMLTable -DataTable $($Choco) @TableSettings}}}
-		}
-	}
-	if ($Export -eq 'Host') { 
-		if ($PackageManager -like 'Winget') { return $Winget}
-		if ($PackageManager -like 'Chocolatey') { return $Choco}
-		if ($PackageManager -like 'AllManagers') {
-			return [PSCustomObject]@{
-				Winget     = $Winget
-				Chocolatey = $Choco
-			}
-		}
-	}
-	Write-Verbose "[$(Get-Date -Format HH:mm:ss) Complete]"
-} #end Function
- 
-Export-ModuleMember -Function Show-PSPackageManInstalledApp
 #endregion
  
 #endregion

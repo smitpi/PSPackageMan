@@ -57,11 +57,11 @@ Select if the list is hosted publicly.
 The token for that gist.
 
 .EXAMPLE
-Show-PSPackageManAppList -GitHubUserID $user -PublicGist
+Get-PSPackageManAppList -GitHubUserID $user -PublicGist
 
 #>
-Function Show-PSPackageManAppList {
-	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Show-PSPackageManAppList')]
+Function Get-PSPackageManAppList {
+	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Get-PSPackageManAppList')]
 	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory)]

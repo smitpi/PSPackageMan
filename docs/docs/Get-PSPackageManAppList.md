@@ -5,7 +5,7 @@ online version:
 schema: 2.0.0
 ---
 
-# Show-PSPackageManAppList
+# Get-PSPackageManAppList
 
 ## SYNOPSIS
 Show a List of all the GitHub Gist app Lists.
@@ -14,12 +14,12 @@ Show a List of all the GitHub Gist app Lists.
 
 ### Public
 ```
-Show-PSPackageManAppList -GitHubUserID <String> [-PublicGist] [<CommonParameters>]
+Get-PSPackageManAppList -GitHubUserID <String> [-PublicGist] [<CommonParameters>]
 ```
 
 ### Private
 ```
-Show-PSPackageManAppList -GitHubUserID <String> [-GitHubToken <String>] [<CommonParameters>]
+Get-PSPackageManAppList -GitHubUserID <String> [-GitHubToken <String>] [<CommonParameters>]
 ```
 
 ## DESCRIPTION
@@ -29,7 +29,7 @@ Show a List of all the GitHub Gist app Lists.
 
 ### EXAMPLE 1
 ```
-Show-PSPackageManAppList -GitHubUserID $user -PublicGist
+Get-PSPackageManAppList -GitHubUserID $user -PublicGist
 ```
 
 ## PARAMETERS
