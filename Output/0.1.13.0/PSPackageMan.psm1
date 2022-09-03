@@ -3,11 +3,11 @@
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
-# ModifiedOn:       2022/09/03 08:36:08
+# ModifiedOn:       2022/09/03 08:42:33
 # Synopsis:         Add an app to one more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -170,7 +170,7 @@ Function Add-PSPackageManAppToList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name }
 }
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ListName -ScriptBlock $scriptblock
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ChocoSource -ScriptBlock {choco source --limit-output | ForEach-Object {$_.split('|')[0]}}
@@ -182,7 +182,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 10 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -276,7 +276,7 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 10 ##################
 # Function:         Get-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -364,7 +364,7 @@ Export-ModuleMember -Function Get-PSPackageManAppList
 ######## Function 4 of 10 ##################
 # Function:         Get-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36
@@ -531,11 +531,11 @@ Export-ModuleMember -Function Get-PSPackageManInstalledApp
 ######## Function 5 of 10 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
-# ModifiedOn:       2022/09/03 08:36:07
+# ModifiedOn:       2022/09/03 08:42:34
 # Synopsis:         Installs the apps from the GitHub Gist List.
 #############################################
  
@@ -660,7 +660,7 @@ Function Install-PSPackageManAppFromList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name }
 }
 Register-ArgumentCompleter -CommandName Install-PSPackageManAppFromList -ParameterName ListName -ScriptBlock $scriptblock
  
@@ -671,7 +671,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 6 of 10 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -791,11 +791,11 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 7 of 10 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
-# ModifiedOn:       2022/09/03 08:36:07
+# ModifiedOn:       2022/09/03 08:42:35
 # Synopsis:         Remove an app from one or more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -888,7 +888,7 @@ Function Remove-PSPackageManAppFromList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name }
 }
 Register-ArgumentCompleter -CommandName Remove-PSPackageManAppFromList -ParameterName ListName -ScriptBlock $scriptblock
  
@@ -899,11 +899,11 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 8 of 10 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
-# ModifiedOn:       2022/09/03 08:36:07
+# ModifiedOn:       2022/09/03 08:42:35
 # Synopsis:         Deletes a list from your GitHub Gist.
 #############################################
  
@@ -975,7 +975,7 @@ Function Remove-PSPackageManList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name }
 }
 Register-ArgumentCompleter -CommandName Remove-PSPackageManList -ParameterName ListName -ScriptBlock $scriptblock
  
@@ -986,7 +986,7 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 9 of 10 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
@@ -1188,11 +1188,11 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 10 of 10 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.12.0
+# ModuleVersion:    0.1.13.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44
-# ModifiedOn:       2022/09/03 08:36:07
+# ModifiedOn:       2022/09/03 08:42:51
 # Synopsis:         Show an app to one of the predefined GitHub Gist Lists.
 #############################################
  
@@ -1310,7 +1310,7 @@ Function Show-PSPackageManApp {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name | Where-Object {$_ -like "*$wordToComplete*"}}
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name }
 }
 Register-ArgumentCompleter -CommandName Show-PSPackageManApp -ParameterName ListName -ScriptBlock $scriptblock
  
