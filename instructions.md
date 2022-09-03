@@ -1,7 +1,7 @@
 # PSPackageMan
  
 ## Description
-Creates a GitHub (Private or Public) Gist to host the details about your required apps. You can create more than one list to customize your reuirements. These lists are then used to install or upgrade apps on Windows using Chcocolatey or Winget. With this, you can install all your utilities on any machine unatended.
+Creates a GitHub (Private or Public) Gist to host the details about your required apps. You can create more than one list to customize your requirements. These lists are then used to install or upgrade apps on Windows using Chocolatey or Winget. With this, you can install all your utilities on any machine unattended.
  
 ## Getting Started
 - Install from PowerShell Gallery [PS Gallery](https://www.powershellgallery.com/packages/PSPackageMan)
