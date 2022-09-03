@@ -55,11 +55,8 @@ What app to search for.
 .PARAMETER PackageManager
 Which app manager to use (Chocolatey or winget)
 
-.PARAMETER MoreOptions
-Select for more search options.
-
 .PARAMETER ChocoSource
-Chocolatey source
+Chocolatey source, if a personal repository is used.
 
 .PARAMETER Exact
 Limits the search to the exact search string.
@@ -69,7 +66,7 @@ Search-PSPackageManApp -SearchString office -PackageManager Winget
 
 #>
 Function Search-PSPackageManApp {
-	[Cmdletbinding(DefaultParameterSetName = 'Set1', HelpURI = 'https://smitpi.github.io/PSPackageMan/Search-PSPackageManApp')]
+	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Search-PSPackageManApp')]
 	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
@@ -79,13 +76,8 @@ Function Search-PSPackageManApp {
 		[Parameter(Mandatory, ValueFromPipelineByPropertyName)]
 		[ValidateSet('Chocolatey', 'Winget', 'AllManagers')]
 		[string]$PackageManager,
-		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$MoreOptions,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$Exact,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$ShowAppDetail
 	)
 	begin {
@@ -183,8 +175,8 @@ Function Search-PSPackageManApp {
 						$begin = ($Result.IndexOf($Result -match '---') + 1)
 						$end = $Result.count
 						foreach ($line in ($Result[$($begin)..$($end)])) {
-							if ($line -like "*Tag*" -or $line -like "*Moniker*"){
-								$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
+							if ($line -like '*Tag*' -or $line -like '*Moniker*') {
+								$splited = $line.split(' ') | Where-Object {$_ -notlike $null}
 								$WingetObject.add([pscustomobject]@{
 										Name           = ($splited[0..($splited.count - 4)] -join ' ')
 										id             = $splited[-5]
@@ -192,21 +184,21 @@ Function Search-PSPackageManApp {
 										PackageManager = 'Winget'
 										source         = $splited[-1]
 									})
-							}
-							else {
-							$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
-							$WingetObject.add([pscustomobject]@{
-									Name           = ($splited[0..($splited.count - 4)] -join ' ')
-									id             = $splited[-3]
-									version        = $splited[-2]
-									PackageManager = 'Winget'
-									source         = $splited[-1]
-								})
+							} else {
+								$splited = $line.split(' ') | Where-Object {$_ -notlike $null}
+								$WingetObject.add([pscustomobject]@{
+										Name           = ($splited[0..($splited.count - 4)] -join ' ')
+										id             = $splited[-3]
+										version        = $splited[-2]
+										PackageManager = 'Winget'
+										source         = $splited[-1]
+									})
 							}
 						}
 						Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Winget done."
 						if ($ShowAppDetail) {AppDetails $WingetObject}
-						else {$WingetObject}					}
+						else {$WingetObject}					
+     }
 				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			} else {Write-Warning "Winget is not installed.`nInstall it from https://docs.microsoft.com/en-us/windows/package-manager/winget/ "}
 		}

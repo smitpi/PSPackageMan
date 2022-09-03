@@ -1,7 +1,7 @@
 # PSPackageMan
  
 ## Description
-Uses a GithHub Gist List to manage installed software on Windows using Winget or Chocolatey
+Creates a GitHub (Private or Public) Gist to host the details about your required apps. You can create more than one list to customize your reuirements. These lists are then used to install or upgrade apps on Windows using Chcocolatey or Winget. With this, you can install all your utilities on any machine unatended.
  
 ## Getting Started
 - Install from PowerShell Gallery [PS Gallery](https://www.powershellgallery.com/packages/PSPackageMan)

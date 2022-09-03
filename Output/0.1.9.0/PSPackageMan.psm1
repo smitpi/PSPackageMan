@@ -3,11 +3,11 @@
 ######## Function 1 of 10 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
-# ModifiedOn:       2022/09/03 04:22:52
+# ModifiedOn:       2022/09/03 07:05:02
 # Synopsis:         Add an app to one more of the predefined GitHub Gist Lists.
 #############################################
  
@@ -68,11 +68,7 @@ Function Add-PSPackageManAppToList {
 		[string]$GitHubUserID,
 		[Parameter(Mandatory)]
 		[string]$GitHubToken,
-		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$MoreOptions,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$Exact
 	)
 
@@ -186,7 +182,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 10 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -280,7 +276,7 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 10 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
@@ -420,7 +416,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 4 of 10 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -540,7 +536,7 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 5 of 10 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -648,7 +644,7 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 6 of 10 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -735,11 +731,11 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 7 of 10 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
-# ModifiedOn:       2022/09/03 06:04:11
+# ModifiedOn:       2022/09/03 07:03:56
 # Synopsis:         Will search the winget and chocolatey repositories for apps
 #############################################
  
@@ -756,11 +752,8 @@ What app to search for.
 .PARAMETER PackageManager
 Which app manager to use (Chocolatey or winget)
 
-.PARAMETER MoreOptions
-Select for more search options.
-
 .PARAMETER ChocoSource
-Chocolatey source
+Chocolatey source, if a personal repository is used.
 
 .PARAMETER Exact
 Limits the search to the exact search string.
@@ -770,7 +763,7 @@ Search-PSPackageManApp -SearchString office -PackageManager Winget
 
 #>
 Function Search-PSPackageManApp {
-	[Cmdletbinding(DefaultParameterSetName = 'Set1', HelpURI = 'https://smitpi.github.io/PSPackageMan/Search-PSPackageManApp')]
+	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Search-PSPackageManApp')]
 	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ValueFromPipeline)]
@@ -780,13 +773,8 @@ Function Search-PSPackageManApp {
 		[Parameter(Mandatory, ValueFromPipelineByPropertyName)]
 		[ValidateSet('Chocolatey', 'Winget', 'AllManagers')]
 		[string]$PackageManager,
-		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$MoreOptions,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$Exact,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$ShowAppDetail
 	)
 	begin {
@@ -884,8 +872,8 @@ Function Search-PSPackageManApp {
 						$begin = ($Result.IndexOf($Result -match '---') + 1)
 						$end = $Result.count
 						foreach ($line in ($Result[$($begin)..$($end)])) {
-							if ($line -like "*Tag*" -or $line -like "*Moniker*"){
-								$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
+							if ($line -like '*Tag*' -or $line -like '*Moniker*') {
+								$splited = $line.split(' ') | Where-Object {$_ -notlike $null}
 								$WingetObject.add([pscustomobject]@{
 										Name           = ($splited[0..($splited.count - 4)] -join ' ')
 										id             = $splited[-5]
@@ -893,21 +881,21 @@ Function Search-PSPackageManApp {
 										PackageManager = 'Winget'
 										source         = $splited[-1]
 									})
-							}
-							else {
-							$splited = $line | Split-String -Separator ' ' -RemoveEmptyStrings
-							$WingetObject.add([pscustomobject]@{
-									Name           = ($splited[0..($splited.count - 4)] -join ' ')
-									id             = $splited[-3]
-									version        = $splited[-2]
-									PackageManager = 'Winget'
-									source         = $splited[-1]
-								})
+							} else {
+								$splited = $line.split(' ') | Where-Object {$_ -notlike $null}
+								$WingetObject.add([pscustomobject]@{
+										Name           = ($splited[0..($splited.count - 4)] -join ' ')
+										id             = $splited[-3]
+										version        = $splited[-2]
+										PackageManager = 'Winget'
+										source         = $splited[-1]
+									})
 							}
 						}
 						Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESSES] Winget done."
 						if ($ShowAppDetail) {AppDetails $WingetObject}
-						else {$WingetObject}					}
+						else {$WingetObject}					
+     }
 				} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
 			} else {Write-Warning "Winget is not installed.`nInstall it from https://docs.microsoft.com/en-us/windows/package-manager/winget/ "}
 		}
@@ -945,11 +933,11 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 8 of 10 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44
-# ModifiedOn:       2022/09/03 05:33:40
+# ModifiedOn:       2022/09/03 06:54:56
 # Synopsis:         Show an app to one of the predefined GitHub Gist Lists.
 #############################################
  
@@ -1078,7 +1066,7 @@ Export-ModuleMember -Function Show-PSPackageManApp
 ######## Function 9 of 10 ##################
 # Function:         Show-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -1166,7 +1154,7 @@ Export-ModuleMember -Function Show-PSPackageManAppList
 ######## Function 10 of 10 ##################
 # Function:         Show-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.4
+# ModuleVersion:    0.1.9.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36

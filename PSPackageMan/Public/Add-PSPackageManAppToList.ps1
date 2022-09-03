@@ -99,11 +99,7 @@ Function Add-PSPackageManAppToList {
 		[string]$GitHubUserID,
 		[Parameter(Mandatory)]
 		[string]$GitHubToken,
-		[Parameter(ParameterSetName = 'MoreOptions')]
-		[switch]$MoreOptions,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[string]$ChocoSource,
-		[Parameter(ParameterSetName = 'MoreOptions')]
 		[switch]$Exact
 	)
 
