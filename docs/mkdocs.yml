@@ -13,10 +13,10 @@ extra:
   social:
     - icon: fontawesome/brands/github-square
       link: 'https://smitpi.github.io/PSPackageMan'
-
+ 
 markdown_extensions:
   - pymdownx.keys
   - pymdownx.snippets
   - pymdownx.superfences
-  
+ 
 theme: windmill

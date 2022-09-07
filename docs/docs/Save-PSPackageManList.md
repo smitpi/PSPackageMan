@@ -5,37 +5,33 @@ online version:
 schema: 2.0.0
 ---
 
-# Install-PSPackageManAppFromList
+# Save-PSPackageManList
 
 ## SYNOPSIS
-Installs the apps from the GitHub Gist List.
+Saves the Gist List to the local machine
 
 ## SYNTAX
 
-### Private
+### Public
 ```
-Install-PSPackageManAppFromList -ListName <String[]> -GitHubUserID <String> [-GitHubToken <String>]
+Save-PSPackageManList -ListName <String[]> -Path <DirectoryInfo> -GitHubUserID <String> [-PublicGist]
  [<CommonParameters>]
 ```
 
-### Public
+### Private
 ```
-Install-PSPackageManAppFromList -ListName <String[]> -GitHubUserID <String> [-PublicGist] [<CommonParameters>]
-```
-
-### local
-```
-Install-PSPackageManAppFromList -ListName <String[]> [-LocalList] [-Path <DirectoryInfo>] [<CommonParameters>]
+Save-PSPackageManList -ListName <String[]> -Path <DirectoryInfo> -GitHubUserID <String> [-GitHubToken <String>]
+ [<CommonParameters>]
 ```
 
 ## DESCRIPTION
-Installs the apps from the GitHub Gist List.
+Saves the Gist List to the local machine
 
 ## EXAMPLES
 
 ### EXAMPLE 1
 ```
-Install-PSPackageManAppFromList -ListName twee -GitHubUserID $user -PublicGist
+Save-PSPackageManList -ListName BaseApps,een,twee -Path C:\temp
 ```
 
 ## PARAMETERS
@@ -55,12 +51,27 @@ Accept pipeline input: False
 Accept wildcard characters: False
 ```
 
+### -Path
+Directory where files will be saved.
+
+```yaml
+Type: DirectoryInfo
+Parameter Sets: (All)
+Aliases:
+
+Required: True
+Position: Named
+Default value: None
+Accept pipeline input: False
+Accept wildcard characters: False
+```
+
 ### -GitHubUserID
 User with access to the gist.
 
 ```yaml
 Type: String
-Parameter Sets: Private, Public
+Parameter Sets: (All)
 Aliases:
 
 Required: True
@@ -91,36 +102,6 @@ The token for that gist.
 ```yaml
 Type: String
 Parameter Sets: Private
-Aliases:
-
-Required: False
-Position: Named
-Default value: None
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -LocalList
-Select if the list is saved locally.
-
-```yaml
-Type: SwitchParameter
-Parameter Sets: local
-Aliases:
-
-Required: False
-Position: Named
-Default value: False
-Accept pipeline input: False
-Accept wildcard characters: False
-```
-
-### -Path
-Directory where files are saved.
-
-```yaml
-Type: DirectoryInfo
-Parameter Sets: local
 Aliases:
 
 Required: False

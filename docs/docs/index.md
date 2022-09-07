@@ -32,5 +32,6 @@ Documentation can be found at: [Github_Pages](https://smitpi.github.io/PSPackage
 - [`New-PSPackageManList`](https://smitpi.github.io/PSPackageMan/New-PSPackageManList) -- Creates a new list file on your GitHub Gist.
 - [`Remove-PSPackageManAppFromList`](https://smitpi.github.io/PSPackageMan/Remove-PSPackageManAppFromList) -- Remove an app from one or more of the predefined GitHub Gist Lists.
 - [`Remove-PSPackageManList`](https://smitpi.github.io/PSPackageMan/Remove-PSPackageManList) -- Deletes a list from your GitHub Gist.
+- [`Save-PSPackageManList`](https://smitpi.github.io/PSPackageMan/Save-PSPackageManList) -- Saves the Gist List to the local machine
 - [`Search-PSPackageManApp`](https://smitpi.github.io/PSPackageMan/Search-PSPackageManApp) -- Will search the winget and chocolatey repositories for apps
 - [`Show-PSPackageManApp`](https://smitpi.github.io/PSPackageMan/Show-PSPackageManApp) -- Show an app to one of the predefined GitHub Gist Lists.
