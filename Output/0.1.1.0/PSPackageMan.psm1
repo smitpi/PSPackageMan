@@ -1,9 +1,9 @@
-#region Public Functions
+﻿#region Public Functions
 #region Add-PSPackageManAppToList.ps1
-######## Function 1 of 10 ##################
+######## Function 1 of 11 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
@@ -179,14 +179,14 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 #endregion
  
 #region Add-PSPackageManDefaultsToProfile.ps1
-######## Function 2 of 10 ##################
+######## Function 2 of 11 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
-# ModifiedOn:       2022/09/02 21:27:58
+# ModifiedOn:       2022/09/03 16:54:43
 # Synopsis:         Add the parameter to PSDefaultParameters and also your profile.
 #############################################
  
@@ -273,10 +273,10 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 #endregion
  
 #region Get-PSPackageManAppList.ps1
-######## Function 3 of 10 ##################
+######## Function 3 of 11 ##################
 # Function:         Get-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -361,10 +361,10 @@ Export-ModuleMember -Function Get-PSPackageManAppList
 #endregion
  
 #region Get-PSPackageManInstalledApp.ps1
-######## Function 4 of 10 ##################
+######## Function 4 of 11 ##################
 # Function:         Get-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36
@@ -528,14 +528,14 @@ Export-ModuleMember -Function Get-PSPackageManInstalledApp
 #endregion
  
 #region Install-PSPackageManAppFromList.ps1
-######## Function 5 of 10 ##################
+######## Function 5 of 11 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
-# ModifiedOn:       2022/09/03 08:42:34
+# ModifiedOn:       2022/09/07 17:53:34
 # Synopsis:         Installs the apps from the GitHub Gist List.
 #############################################
  
@@ -558,52 +558,72 @@ Select if the list is hosted publicly.
 .PARAMETER GitHubToken
 The token for that gist.
 
+.PARAMETER LocalList
+Select if the list is saved locally.
+
+.PARAMETER Path
+Directory where files are saved.
+
 .EXAMPLE
 Install-PSPackageManAppFromList -ListName twee -GitHubUserID $user -PublicGist
 
 #>
 Function Install-PSPackageManAppFromList {
 	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Install-PSPackageManAppFromList')]
-	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory)]
 		[ValidateScript( { $IsAdmin = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 				if ($IsAdmin.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { $True }
 				else { Throw 'Must be running an elevated prompt.' } })]
 		[string[]]$ListName,
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory, ParameterSetName = 'Public')]
+		[Parameter(Mandatory, ParameterSetName = 'Private')]
 		[string]$GitHubUserID,
 		[Parameter(ParameterSetName = 'Public')]
 		[switch]$PublicGist,
 		[Parameter(ParameterSetName = 'Private')]
-		[string]$GitHubToken
+		[string]$GitHubToken,
+		[Parameter(ParameterSetName = 'local')]
+		[switch]$LocalList,
+		[Parameter(ParameterSetName = 'local')]
+		[System.IO.DirectoryInfo]$Path
 	)
 
-	try {
-		Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting $($myinvocation.mycommand)"
-		$headers = @{}
-		$auth = '{0}:{1}' -f $GitHubUserID, $GitHubToken
-		$bytes = [System.Text.Encoding]::ASCII.GetBytes($auth)
-		$base64 = [System.Convert]::ToBase64String($bytes)
-		$headers.Authorization = 'Basic {0}' -f $base64
+	if ($GitHubUserID) {
+		try {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting $($myinvocation.mycommand)"
+			$headers = @{}
+			$auth = '{0}:{1}' -f $GitHubUserID, $GitHubToken
+			$bytes = [System.Text.Encoding]::ASCII.GetBytes($auth)
+			$base64 = [System.Convert]::ToBase64String($bytes)
+			$headers.Authorization = 'Basic {0}' -f $base64
 
-		Write-Verbose "[$(Get-Date -Format HH:mm:ss) Starting connect to github"
-		$url = 'https://api.github.com/users/{0}/gists' -f $GitHubUserID
-		$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
-		$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
-	} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
-
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Starting connect to github"
+			$url = 'https://api.github.com/users/{0}/gists' -f $GitHubUserID
+			$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
+			$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
+		} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
+	}
 	[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
 	foreach ($list in $ListName) {
 		try {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
-			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($list)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+			if ($LocalList) {
+				$ListPath = Join-Path $Path -ChildPath "$($list).json"
+				if (Test-Path $ListPath) { 
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Collecting Content"
+					$Content = Get-Content $ListPath | ConvertFrom-Json
+				} else {Write-Warning "List file $($List) does not exist"}
+			} else {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Collecting Content"
+				$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($List)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+			}
+			$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
+				if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+					Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+				} else {$AppObject.Add($_)}
+			}
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-		$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
-			if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
-				Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
-			} else {$AppObject.Add($_)}
-		}
 	}
 
 
@@ -668,10 +688,10 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 #endregion
  
 #region New-PSPackageManList.ps1
-######## Function 6 of 10 ##################
+######## Function 6 of 11 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -788,10 +808,10 @@ Export-ModuleMember -Function New-PSPackageManList
 #endregion
  
 #region Remove-PSPackageManAppFromList.ps1
-######## Function 7 of 10 ##################
+######## Function 7 of 11 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -896,10 +916,10 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 #endregion
  
 #region Remove-PSPackageManList.ps1
-######## Function 8 of 10 ##################
+######## Function 8 of 11 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -982,11 +1002,96 @@ Register-ArgumentCompleter -CommandName Remove-PSPackageManList -ParameterName L
 Export-ModuleMember -Function Remove-PSPackageManList
 #endregion
  
+#region Save-PSPackageManList.ps1
+######## Function 9 of 11 ##################
+# Function:         Save-PSPackageManList
+# Module:           PSPackageMan
+# ModuleVersion:    0.1.1.0
+# Author:           Pierre Smit
+# Company:          HTPCZA Tech
+# CreatedOn:        2022/09/07 17:36:46
+# ModifiedOn:       2022/09/07 17:55:19
+# Synopsis:         Saves the Gist List to the local machine
+#############################################
+ 
+<#
+.SYNOPSIS
+Saves the Gist List to the local machine
+
+.DESCRIPTION
+Saves the Gist List to the local machine
+
+.PARAMETER ListName
+Name of the list.
+
+.PARAMETER GitHubUserID
+User with access to the gist.
+
+.PARAMETER PublicGist
+Select if the list is hosted publicly.
+
+.PARAMETER GitHubToken
+The token for that gist.
+
+.PARAMETER Path
+Directory where files will be saved.
+
+.EXAMPLE
+Save-PSPackageManList -ListName BaseApps,een,twee -Path C:\temp
+
+#>
+Function Save-PSPackageManList {
+	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Save-PSPackageManList')]
+	PARAM(
+		[Parameter(Mandatory)]
+		[string[]]$ListName,
+		[Parameter(Mandatory)]
+		[System.IO.DirectoryInfo]$Path,
+		[Parameter(Mandatory)]
+		[string]$GitHubUserID, 
+		[Parameter(ParameterSetName = 'Public')]
+		[switch]$PublicGist,
+		[Parameter(ParameterSetName = 'Private')]
+		[string]$GitHubToken
+	)
+
+	try {
+		Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Connect to gist"
+		$headers = @{}
+		$auth = '{0}:{1}' -f $GitHubUserID, $GitHubToken
+		$bytes = [System.Text.Encoding]::ASCII.GetBytes($auth)
+		$base64 = [System.Convert]::ToBase64String($bytes)
+		$headers.Authorization = 'Basic {0}' -f $base64
+
+		$url = 'https://api.github.com/users/{0}/gists' -f $GitHubUserID
+		$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
+		$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
+	} catch {throw "Can't connect to gist:`n $($_.Exception.Message)"}
+
+	foreach ($List in $ListName) {
+		try {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Checking Config File"
+			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($List)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
+		$Content | ConvertTo-Json -Depth 5 | Set-Content -Path (Join-Path $Path -ChildPath "$($list).json") -Force
+		Write-Host '[Saved]' -NoNewline -ForegroundColor Yellow; Write-Host " $($List) " -NoNewline -ForegroundColor Cyan; Write-Host "to $((Join-Path $Path -ChildPath "$($list).json"))" -ForegroundColor Green
+	}
+	Write-Verbose "[$(Get-Date -Format HH:mm:ss) DONE]"
+} #end Function
+$scriptblock = {
+	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name }
+}
+Register-ArgumentCompleter -CommandName Save-PSPackageManList -ParameterName ListName -ScriptBlock $scriptblock
+ 
+Export-ModuleMember -Function Save-PSPackageManList
+#endregion
+ 
 #region Search-PSPackageManApp.ps1
-######## Function 9 of 10 ##################
+######## Function 10 of 11 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
@@ -1188,10 +1293,10 @@ Export-ModuleMember -Function Search-PSPackageManApp
 #endregion
  
 #region Show-PSPackageManApp.ps1
-######## Function 10 of 10 ##################
+######## Function 11 of 11 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.1
+# ModuleVersion:    0.1.1.0
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44

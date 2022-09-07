@@ -61,52 +61,72 @@ Select if the list is hosted publicly.
 .PARAMETER GitHubToken
 The token for that gist.
 
+.PARAMETER LocalList
+Select if the list is saved locally.
+
+.PARAMETER Path
+Directory where files are saved.
+
 .EXAMPLE
 Install-PSPackageManAppFromList -ListName twee -GitHubUserID $user -PublicGist
 
 #>
 Function Install-PSPackageManAppFromList {
 	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Install-PSPackageManAppFromList')]
-	[OutputType([System.Object[]])]
 	PARAM(
 		[Parameter(Mandatory)]
 		[ValidateScript( { $IsAdmin = New-Object Security.Principal.WindowsPrincipal([Security.Principal.WindowsIdentity]::GetCurrent())
 				if ($IsAdmin.IsInRole([Security.Principal.WindowsBuiltInRole]::Administrator)) { $True }
 				else { Throw 'Must be running an elevated prompt.' } })]
 		[string[]]$ListName,
-		[Parameter(Mandatory)]
+		[Parameter(Mandatory, ParameterSetName = 'Public')]
+		[Parameter(Mandatory, ParameterSetName = 'Private')]
 		[string]$GitHubUserID,
 		[Parameter(ParameterSetName = 'Public')]
 		[switch]$PublicGist,
 		[Parameter(ParameterSetName = 'Private')]
-		[string]$GitHubToken
+		[string]$GitHubToken,
+		[Parameter(ParameterSetName = 'local')]
+		[switch]$LocalList,
+		[Parameter(ParameterSetName = 'local')]
+		[System.IO.DirectoryInfo]$Path
 	)
 
-	try {
-		Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting $($myinvocation.mycommand)"
-		$headers = @{}
-		$auth = '{0}:{1}' -f $GitHubUserID, $GitHubToken
-		$bytes = [System.Text.Encoding]::ASCII.GetBytes($auth)
-		$base64 = [System.Convert]::ToBase64String($bytes)
-		$headers.Authorization = 'Basic {0}' -f $base64
+	if ($GitHubUserID) {
+		try {
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting $($myinvocation.mycommand)"
+			$headers = @{}
+			$auth = '{0}:{1}' -f $GitHubUserID, $GitHubToken
+			$bytes = [System.Text.Encoding]::ASCII.GetBytes($auth)
+			$base64 = [System.Convert]::ToBase64String($bytes)
+			$headers.Authorization = 'Basic {0}' -f $base64
 
-		Write-Verbose "[$(Get-Date -Format HH:mm:ss) Starting connect to github"
-		$url = 'https://api.github.com/users/{0}/gists' -f $GitHubUserID
-		$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
-		$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
-	} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
-
+			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Starting connect to github"
+			$url = 'https://api.github.com/users/{0}/gists' -f $GitHubUserID
+			$AllGist = Invoke-RestMethod -Uri $url -Method Get -Headers $headers -ErrorAction Stop
+			$PRGist = $AllGist | Select-Object | Where-Object { $_.description -like 'PSPackageMan-ConfigFile' }
+		} catch {Write-Error "Can't connect to gist:`n $($_.Exception.Message)"}
+	}
 	[System.Collections.Generic.List[PSCustomObject]]$AppObject = @()
 	foreach ($list in $ListName) {
 		try {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) Checking Config File"
-			$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($list)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+			if ($LocalList) {
+				$ListPath = Join-Path $Path -ChildPath "$($list).json"
+				if (Test-Path $ListPath) { 
+					Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Collecting Content"
+					$Content = Get-Content $ListPath | ConvertFrom-Json
+				} else {Write-Warning "List file $($List) does not exist"}
+			} else {
+				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Collecting Content"
+				$Content = (Invoke-WebRequest -Uri ($PRGist.files.$($List)).raw_url -Headers $headers).content | ConvertFrom-Json -ErrorAction Stop
+			}
+			$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
+				if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
+					Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
+				} else {$AppObject.Add($_)}
+			}
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
-		$Content.Apps | Where-Object {$_ -notlike $null} | ForEach-Object {
-			if ($AppObject.Exists({ -not (Compare-Object $args[0].psobject.properties.value $_.psobject.Properties.value) })) {
-				Write-Color 'Duplicate Found', " ListName: $($list)", " Name: $($_.name)" -Color Gray, DarkYellow, DarkCyan
-			} else {$AppObject.Add($_)}
-		}
 	}
 
 
