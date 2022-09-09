@@ -17,9 +17,9 @@
         <maml:name>Add-PSPackageManAppToList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -29,9 +29,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="2" aliases="Id, PackageIdentifier, Name">
           <maml:name>SearchString</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Application name to search for.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -41,9 +41,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="3" aliases="none">
           <maml:name>PackageManager</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Which app manager to use (Chocolatey or winget)</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -53,9 +53,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="4" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -65,9 +65,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="5" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -77,9 +77,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="6" aliases="none">
           <maml:name>ChocoSource</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Chocolatey source</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -89,9 +89,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Exact</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Limits the search to the exact search string.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -103,9 +103,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>ListName</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Name of the list.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
         <dev:type>
           <maml:name>String[]</maml:name>
@@ -115,9 +115,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="2" aliases="Id, PackageIdentifier, Name">
         <maml:name>SearchString</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Application name to search for.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
         <dev:type>
           <maml:name>String[]</maml:name>
@@ -127,9 +127,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="3" aliases="none">
         <maml:name>PackageManager</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Which app manager to use (Chocolatey or winget)</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -139,9 +139,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="4" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -151,9 +151,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="5" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -163,9 +163,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="6" aliases="none">
         <maml:name>ChocoSource</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Chocolatey source</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -175,9 +175,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Exact</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Limits the search to the exact search string.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -230,9 +230,9 @@
         <maml:name>Add-PSPackageManDefaultsToProfile</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -242,9 +242,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PublicGist</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Select if the list is hosted publicly.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -253,9 +253,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>RemoveConfig</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Remove the config from your profile.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -267,9 +267,9 @@
         <maml:name>Add-PSPackageManDefaultsToProfile</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -279,9 +279,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -291,9 +291,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>RemoveConfig</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Remove the config from your profile.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -305,9 +305,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -317,9 +317,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>PublicGist</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Select if the list is hosted publicly.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -329,9 +329,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -341,9 +341,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>RemoveConfig</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Remove the config from your profile.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -396,9 +396,9 @@
         <maml:name>Get-PSPackageManAppList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -408,9 +408,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PublicGist</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Select if the list is hosted publicly.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -422,9 +422,9 @@
         <maml:name>Get-PSPackageManAppList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -434,9 +434,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -449,9 +449,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -461,9 +461,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>PublicGist</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Select if the list is hosted publicly.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -473,9 +473,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -528,9 +528,9 @@
         <maml:name>Get-PSPackageManInstalledApp</maml:name>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>PackageManager</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Which package manager to query installed apps with.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -540,9 +540,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
           <maml:name>Export</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Export the result to a report file. (Excel or html). Or select Host to display the object on screen.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -552,9 +552,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
           <maml:name>ReportPath</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Where to save the report.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">DirectoryInfo</command:parameterValue>
           <dev:type>
             <maml:name>DirectoryInfo</maml:name>
@@ -567,9 +567,9 @@
     <command:parameters>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>PackageManager</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Which package manager to query installed apps with.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -579,9 +579,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
         <maml:name>Export</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Export the result to a report file. (Excel or html). Or select Host to display the object on screen.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -591,9 +591,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
         <maml:name>ReportPath</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Where to save the report.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">DirectoryInfo</command:parameterValue>
         <dev:type>
           <maml:name>DirectoryInfo</maml:name>
@@ -646,9 +646,9 @@
         <maml:name>Install-PSPackageManAppFromList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -658,9 +658,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -670,9 +670,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -685,9 +685,9 @@
         <maml:name>Install-PSPackageManAppFromList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -697,9 +697,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -709,9 +709,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PublicGist</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Select if the list is hosted publicly.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -723,9 +723,9 @@
         <maml:name>Install-PSPackageManAppFromList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -735,9 +735,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>LocalList</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Select if the list is saved locally.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -746,9 +746,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Path</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Directory where files are saved.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">DirectoryInfo</command:parameterValue>
           <dev:type>
             <maml:name>DirectoryInfo</maml:name>
@@ -761,9 +761,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ListName</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Name of the list.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
         <dev:type>
           <maml:name>String[]</maml:name>
@@ -773,9 +773,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -785,9 +785,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>PublicGist</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Select if the list is hosted publicly.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -797,9 +797,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -809,9 +809,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>LocalList</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Select if the list is saved locally.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -821,9 +821,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Path</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Directory where files are saved.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">DirectoryInfo</command:parameterValue>
         <dev:type>
           <maml:name>DirectoryInfo</maml:name>
@@ -867,9 +867,9 @@
         <maml:name>New-PSPackageManList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The name of the new list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -879,9 +879,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
           <maml:name>Description</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>A Short description for the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -891,9 +891,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -903,9 +903,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="4" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -918,9 +918,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>ListName</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The name of the new list.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -930,9 +930,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
         <maml:name>Description</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>A Short description for the list.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -942,9 +942,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -954,9 +954,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="4" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1009,9 +1009,9 @@
         <maml:name>Remove-PSPackageManAppFromList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1021,9 +1021,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1033,9 +1033,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1048,9 +1048,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>ListName</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Name of the list.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1060,9 +1060,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1072,9 +1072,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1127,9 +1127,9 @@
         <maml:name>Remove-PSPackageManList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The name of the list to remove.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1139,9 +1139,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1151,9 +1151,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1166,9 +1166,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="1" aliases="none">
         <maml:name>ListName</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The name of the list to remove.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1178,9 +1178,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="2" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1190,9 +1190,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1245,9 +1245,9 @@
         <maml:name>Save-PSPackageManList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -1257,9 +1257,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Path</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Directory where files will be saved.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">DirectoryInfo</command:parameterValue>
           <dev:type>
             <maml:name>DirectoryInfo</maml:name>
@@ -1269,9 +1269,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1281,9 +1281,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PublicGist</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Select if the list is hosted publicly.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -1295,9 +1295,9 @@
         <maml:name>Save-PSPackageManList</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -1307,9 +1307,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Path</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Directory where files will be saved.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">DirectoryInfo</command:parameterValue>
           <dev:type>
             <maml:name>DirectoryInfo</maml:name>
@@ -1319,9 +1319,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1331,9 +1331,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1346,9 +1346,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ListName</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Name of the list.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
         <dev:type>
           <maml:name>String[]</maml:name>
@@ -1358,9 +1358,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Path</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Directory where files will be saved.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">DirectoryInfo</command:parameterValue>
         <dev:type>
           <maml:name>DirectoryInfo</maml:name>
@@ -1370,9 +1370,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1382,9 +1382,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>PublicGist</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Select if the list is hosted publicly.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -1394,9 +1394,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1440,9 +1440,9 @@
         <maml:name>Search-PSPackageManApp</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="1" aliases="Id, Name, PackageIdentifier">
           <maml:name>SearchString</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>What app to search for.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -1452,9 +1452,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="2" aliases="none">
           <maml:name>PackageManager</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Which app manager to use (Chocolatey or winget)</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1464,9 +1464,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
           <maml:name>ChocoSource</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Chocolatey source, if a personal repository is used.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1476,9 +1476,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>Exact</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Limits the search to the exact search string.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -1487,9 +1487,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ShowAppDetail</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Show more detail about a selected app.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -1501,9 +1501,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName, ByValue)" position="1" aliases="Id, Name, PackageIdentifier">
         <maml:name>SearchString</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>What app to search for.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
         <dev:type>
           <maml:name>String[]</maml:name>
@@ -1513,9 +1513,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="True (ByPropertyName)" position="2" aliases="none">
         <maml:name>PackageManager</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Which app manager to use (Chocolatey or winget)</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1525,9 +1525,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="3" aliases="none">
         <maml:name>ChocoSource</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Chocolatey source, if a personal repository is used.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1537,9 +1537,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>Exact</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Limits the search to the exact search string.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -1549,9 +1549,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ShowAppDetail</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Show more detail about a selected app.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -1604,9 +1604,9 @@
         <maml:name>Show-PSPackageManApp</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -1616,9 +1616,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ShowAppDetail</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Show more detail about a selected app.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -1627,9 +1627,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1639,9 +1639,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>PublicGist</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Select if the list is hosted publicly.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -1653,9 +1653,9 @@
         <maml:name>Show-PSPackageManApp</maml:name>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ListName</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Name of the list.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
           <dev:type>
             <maml:name>String[]</maml:name>
@@ -1665,9 +1665,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>ShowAppDetail</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>Show more detail about a selected app.</maml:para>
-          </maml:description>
+          </maml:Description>
           <dev:type>
             <maml:name>SwitchParameter</maml:name>
             <maml:uri />
@@ -1676,9 +1676,9 @@
         </command:parameter>
         <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubUserID</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>User with access to the gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1688,9 +1688,9 @@
         </command:parameter>
         <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
           <maml:name>GitHubToken</maml:name>
-          <maml:description>
+          <maml:Description>
             <maml:para>The token for that gist.</maml:para>
-          </maml:description>
+          </maml:Description>
           <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
           <dev:type>
             <maml:name>String</maml:name>
@@ -1703,9 +1703,9 @@
     <command:parameters>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ListName</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Name of the list.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String[]</command:parameterValue>
         <dev:type>
           <maml:name>String[]</maml:name>
@@ -1715,9 +1715,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>ShowAppDetail</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Show more detail about a selected app.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -1727,9 +1727,9 @@
       </command:parameter>
       <command:parameter required="true" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubUserID</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>User with access to the gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
@@ -1739,9 +1739,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>PublicGist</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>Select if the list is hosted publicly.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
         <dev:type>
           <maml:name>SwitchParameter</maml:name>
@@ -1751,9 +1751,9 @@
       </command:parameter>
       <command:parameter required="false" variableLength="true" globbing="false" pipelineInput="False" position="named" aliases="none">
         <maml:name>GitHubToken</maml:name>
-        <maml:description>
+        <maml:Description>
           <maml:para>The token for that gist.</maml:para>
-        </maml:description>
+        </maml:Description>
         <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
         <dev:type>
           <maml:name>String</maml:name>
