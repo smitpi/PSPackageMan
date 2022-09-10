@@ -142,7 +142,7 @@ Function Install-PSPackageManAppFromList {
 				Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
 				Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
 
-				$CheckInstalled = Invoke-Expression -Command 'winget list' | Where-Object { $_ -match $app.id }
+				$CheckInstalled = Invoke-Expression -Command 'winget list --accept-source-agreements' | Where-Object { $_ -match $app.id }
 				if ([string]::IsNullOrEmpty($CheckInstalled)) {
 					$Command = "winget install --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)" 
 					$null = Invoke-Expression -Command $Command | Where-Object { $_ }

@@ -1,9 +1,9 @@
-﻿#region Public Functions
+#region Public Functions
 #region Add-PSPackageManAppToList.ps1
 ######## Function 1 of 11 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
@@ -182,11 +182,11 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 11 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
-# ModifiedOn:       2022/09/03 16:54:43
+# ModifiedOn:       2022/09/02 21:27:58
 # Synopsis:         Add the parameter to PSDefaultParameters and also your profile.
 #############################################
  
@@ -276,7 +276,7 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 11 ##################
 # Function:         Get-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -364,11 +364,11 @@ Export-ModuleMember -Function Get-PSPackageManAppList
 ######## Function 4 of 11 ##################
 # Function:         Get-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36
-# ModifiedOn:       2022/09/03 08:37:18
+# ModifiedOn:       2022/09/10 03:41:27
 # Synopsis:         This will display a list of installed apps, and their details in the repositories.
 #############################################
  
@@ -413,14 +413,14 @@ Function Get-PSPackageManInstalledApp {
 		Write-Host ' Winget Apps List' -ForegroundColor Gray 
 		try {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting Winget extract"
-			Invoke-Expression -Command "winget export -o $($env:tmp)\winget-extract.json" | Out-Null
+			Invoke-Expression -Command "winget export -o $($env:tmp)\winget-extract.json --accept-source-agreements" | Out-Null
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Winget config import"
 			$importlist = Get-Content "$($env:tmp)\winget-extract.json" | ConvertFrom-Json
 			$FinalList = $importlist.Sources.Packages | ForEach-Object {
 				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
 				Write-Host " AppID: $($_.PackageIdentifier)" -ForegroundColor Gray 
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($_.PackageIdentifier)"		
-				Search-PSPackageManApp -SearchString $_.PackageIdentifier -PackageManager Winget -MoreOptions -Exact
+				Search-PSPackageManApp -SearchString $_.PackageIdentifier -PackageManager Winget -Exact
 			}
 			$FinalList
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
@@ -436,7 +436,7 @@ Function Get-PSPackageManInstalledApp {
 				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
 				Write-Host " AppID: $($appdetail[0])" -ForegroundColor Gray 
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($appdetail[0])"
-				Search-PSPackageManApp -SearchString $appdetail[0] -PackageManager Chocolatey -MoreOptions -Exact
+				Search-PSPackageManApp -SearchString $appdetail[0] -PackageManager Chocolatey -Exact
 			}
 			$FinalList
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
@@ -531,11 +531,11 @@ Export-ModuleMember -Function Get-PSPackageManInstalledApp
 ######## Function 5 of 11 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
-# ModifiedOn:       2022/09/07 17:53:34
+# ModifiedOn:       2022/09/10 03:39:23
 # Synopsis:         Installs the apps from the GitHub Gist List.
 #############################################
  
@@ -639,7 +639,7 @@ Function Install-PSPackageManAppFromList {
 				Write-Host (" {0,-$($maxPackageManagerlength)}" -f "[$($app.PackageManager)]:$($app.Source)") -ForegroundColor DarkGray -NoNewline
 				Write-Host (" {0,$($maxlength)}:" -f $($app.Name) ) -ForegroundColor Cyan -NoNewline
 
-				$CheckInstalled = Invoke-Expression -Command 'winget list' | Where-Object { $_ -match $app.id }
+				$CheckInstalled = Invoke-Expression -Command 'winget list --accept-source-agreements' | Where-Object { $_ -match $app.id }
 				if ([string]::IsNullOrEmpty($CheckInstalled)) {
 					$Command = "winget install --accept-source-agreements --accept-package-agreements --silent --id $($app.id) --source $($app.Source)" 
 					$null = Invoke-Expression -Command $Command | Where-Object { $_ }
@@ -691,7 +691,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 6 of 11 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -811,7 +811,7 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 7 of 11 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -919,7 +919,7 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 8 of 11 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -1006,7 +1006,7 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 9 of 11 ##################
 # Function:         Save-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/07 17:36:46
@@ -1091,7 +1091,7 @@ Export-ModuleMember -Function Save-PSPackageManList
 ######## Function 10 of 11 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
@@ -1296,7 +1296,7 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 11 of 11 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.3
+# ModuleVersion:    0.1.4
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44

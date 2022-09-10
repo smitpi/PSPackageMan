@@ -87,14 +87,14 @@ Function Get-PSPackageManInstalledApp {
 		Write-Host ' Winget Apps List' -ForegroundColor Gray 
 		try {
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) BEGIN] Starting Winget extract"
-			Invoke-Expression -Command "winget export -o $($env:tmp)\winget-extract.json" | Out-Null
+			Invoke-Expression -Command "winget export -o $($env:tmp)\winget-extract.json --accept-source-agreements" | Out-Null
 			Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] Winget config import"
 			$importlist = Get-Content "$($env:tmp)\winget-extract.json" | ConvertFrom-Json
 			$FinalList = $importlist.Sources.Packages | ForEach-Object {
 				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
 				Write-Host " AppID: $($_.PackageIdentifier)" -ForegroundColor Gray 
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($_.PackageIdentifier)"		
-				Search-PSPackageManApp -SearchString $_.PackageIdentifier -PackageManager Winget -MoreOptions -Exact
+				Search-PSPackageManApp -SearchString $_.PackageIdentifier -PackageManager Winget -Exact
 			}
 			$FinalList
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}
@@ -110,7 +110,7 @@ Function Get-PSPackageManInstalledApp {
 				Write-Host "`t[Searching]" -ForegroundColor Yellow -NoNewline
 				Write-Host " AppID: $($appdetail[0])" -ForegroundColor Gray 
 				Write-Verbose "[$(Get-Date -Format HH:mm:ss) PROCESS] AppID: $($appdetail[0])"
-				Search-PSPackageManApp -SearchString $appdetail[0] -PackageManager Chocolatey -MoreOptions -Exact
+				Search-PSPackageManApp -SearchString $appdetail[0] -PackageManager Chocolatey -Exact
 			}
 			$FinalList
 		} catch {Write-Warning "Error: `n`tMessage:$($_.Exception.Message)"}

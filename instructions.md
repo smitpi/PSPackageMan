@@ -8,9 +8,14 @@ Creates a GitHub (Private or Public) Gist to host the details about your require
 ```
 Install-Module -Name PSPackageMan -Verbose
 ```
-- or from GitHub [GitHub Repo](https://github.com/smitpi/PSPackageMan)
+- or run this script to install from GitHub [GitHub Repo](https://github.com/smitpi/PSPackageMan)
 ```
-git clone https://github.com/smitpi/PSPackageMan (Join-Path (get-item (Join-Path (Get-Item $profile).Directory 'Modules')).FullName -ChildPath PSPackageMan)
+$CurrentLocation = Get-Item .
+$ModuleDestination = (Join-Path (Get-Item (Join-Path (Get-Item $profile).Directory 'Modules')).FullName -ChildPath PSPackageMan)
+git clone --depth 1 https://github.com/smitpi/PSPackageMan $ModuleDestination 2>&1 | Write-Host -ForegroundColor Yellow
+Set-Location $ModuleDestination
+git filter-branch --prune-empty --subdirectory-filter Output HEAD 2>&1 | Write-Host -ForegroundColor Yellow
+Set-Location $CurrentLocation
 ```
 - Then import the module into your session
 ```

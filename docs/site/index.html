@@ -168,8 +168,13 @@ if (is_top_frame) { $('body').addClass('wm-top-page'); }
 <li>Install from PowerShell Gallery <a href="https://www.powershellgallery.com/packages/PSPackageMan">PS Gallery</a>
 <div class="highlight"><pre><span></span><code>Install-Module -Name PSPackageMan -Verbose
 </code></pre></div></li>
-<li>or from GitHub <a href="https://github.com/smitpi/PSPackageMan">GitHub Repo</a>
-<div class="highlight"><pre><span></span><code>git clone https://github.com/smitpi/PSPackageMan (Join-Path (get-item (Join-Path (Get-Item $profile).Directory &#39;Modules&#39;)).FullName -ChildPath PSPackageMan)
+<li>or run this script to install from GitHub <a href="https://github.com/smitpi/PSPackageMan">GitHub Repo</a>
+<div class="highlight"><pre><span></span><code>$CurrentLocation = Get-Item .
+$ModuleDestination = (Join-Path (Get-Item (Join-Path (Get-Item $profile).Directory &#39;Modules&#39;)).FullName -ChildPath PSPackageMan)
+git clone --depth 1 https://github.com/smitpi/PSPackageMan $ModuleDestination 2&gt;&amp;1 | Write-Host -ForegroundColor Yellow
+Set-Location $ModuleDestination
+git filter-branch --prune-empty --subdirectory-filter Output HEAD 2&gt;&amp;1 | Write-Host -ForegroundColor Yellow
+Set-Location $CurrentLocation
 </code></pre></div></li>
 <li>Then import the module into your session
 <div class="highlight"><pre><span></span><code>Import-Module PSPackageMan -Verbose -Force
@@ -231,5 +236,5 @@ Documentation can be found at: <a href="https://smitpi.github.io/PSPackageMan">G
 </html>
 <!--
 MkDocs version : 1.3.1
-Build Date UTC : 2022-09-07 19:20:56.038315+00:00
+Build Date UTC : 2022-09-10 05:37:14.191796+00:00
 -->
