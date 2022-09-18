@@ -183,6 +183,5 @@ Function Install-PSPackageManAppFromList {
 } #end Function
 $scriptblock = {
 	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	if ([bool]($PSDefaultParameterValues.Keys -like '*:GitHubUserID')) {(Get-PSPackageManAppList).name }
-}
+	(Get-PSPackageManAppList).name }
 Register-ArgumentCompleter -CommandName Install-PSPackageManAppFromList -ParameterName ListName -ScriptBlock $scriptblock

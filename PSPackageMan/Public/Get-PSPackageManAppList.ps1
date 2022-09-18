@@ -64,7 +64,6 @@ Function Get-PSPackageManAppList {
 	[Cmdletbinding(HelpURI = 'https://smitpi.github.io/PSPackageMan/Get-PSPackageManAppList')]
 	[OutputType([System.Object[]])]
 	PARAM(
-		[Parameter(Mandatory)]
 		[string]$GitHubUserID, 
 		[Parameter(ParameterSetName = 'Public')]
 		[switch]$PublicGist,
