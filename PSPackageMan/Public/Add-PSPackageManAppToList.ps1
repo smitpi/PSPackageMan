@@ -200,7 +200,8 @@ Function Add-PSPackageManAppToList {
 	}
 } #end Function
 $scriptblock = {
-	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	(Get-PSPackageManAppList).name }
+		param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+	Get-PSPackageManAppList | ForEach-Object {$_.Name} | Where-Object {$_ -like "*$wordToComplete*"}
+}
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ListName -ScriptBlock $scriptblock
 Register-ArgumentCompleter -CommandName Add-PSPackageManAppToList -ParameterName ChocoSource -ScriptBlock {choco source --limit-output | ForEach-Object {$_.split('|')[0]}}

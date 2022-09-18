@@ -182,6 +182,7 @@ Function Install-PSPackageManAppFromList {
 	}
 } #end Function
 $scriptblock = {
-	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	(Get-PSPackageManAppList).name }
+		param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+	Get-PSPackageManAppList | ForEach-Object {$_.Name} | Where-Object {$_ -like "*$wordToComplete*"}
+}
 Register-ArgumentCompleter -CommandName Install-PSPackageManAppFromList -ParameterName ListName -ScriptBlock $scriptblock

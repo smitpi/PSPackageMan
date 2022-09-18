@@ -105,6 +105,7 @@ Function Save-PSPackageManList {
 	Write-Verbose "[$(Get-Date -Format HH:mm:ss) DONE]"
 } #end Function
 $scriptblock = {
-	param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
-	(Get-PSPackageManAppList).name }
+		param($commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters)
+	Get-PSPackageManAppList | ForEach-Object {$_.Name} | Where-Object {$_ -like "*$wordToComplete*"}
+}
 Register-ArgumentCompleter -CommandName Save-PSPackageManList -ParameterName ListName -ScriptBlock $scriptblock
