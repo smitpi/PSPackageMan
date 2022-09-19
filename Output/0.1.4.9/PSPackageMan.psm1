@@ -3,7 +3,7 @@
 ######## Function 1 of 11 ##################
 # Function:         Add-PSPackageManAppToList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:34:01
@@ -191,7 +191,7 @@ Export-ModuleMember -Function Add-PSPackageManAppToList
 ######## Function 2 of 11 ##################
 # Function:         Add-PSPackageManDefaultsToProfile
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:43:27
@@ -287,7 +287,7 @@ Export-ModuleMember -Function Add-PSPackageManDefaultsToProfile
 ######## Function 3 of 11 ##################
 # Function:         Get-PSPackageManAppList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:24:07
@@ -376,7 +376,7 @@ Export-ModuleMember -Function Get-PSPackageManAppList
 ######## Function 4 of 11 ##################
 # Function:         Get-PSPackageManInstalledApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:58:36
@@ -545,7 +545,7 @@ Export-ModuleMember -Function Get-PSPackageManInstalledApp
 ######## Function 5 of 11 ##################
 # Function:         Install-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:38:36
@@ -717,7 +717,7 @@ Export-ModuleMember -Function Install-PSPackageManAppFromList
 ######## Function 6 of 11 ##################
 # Function:         New-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:51:19
@@ -843,7 +843,7 @@ Export-ModuleMember -Function New-PSPackageManList
 ######## Function 7 of 11 ##################
 # Function:         Remove-PSPackageManAppFromList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:54:14
@@ -954,7 +954,7 @@ Export-ModuleMember -Function Remove-PSPackageManAppFromList
 ######## Function 8 of 11 ##################
 # Function:         Remove-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:47:58
@@ -1043,7 +1043,7 @@ Export-ModuleMember -Function Remove-PSPackageManList
 ######## Function 9 of 11 ##################
 # Function:         Save-PSPackageManList
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/07 17:36:46
@@ -1131,7 +1131,7 @@ Export-ModuleMember -Function Save-PSPackageManList
 ######## Function 10 of 11 ##################
 # Function:         Search-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:30:25
@@ -1342,7 +1342,7 @@ Export-ModuleMember -Function Search-PSPackageManApp
 ######## Function 11 of 11 ##################
 # Function:         Show-PSPackageManApp
 # Module:           PSPackageMan
-# ModuleVersion:    0.1.4.7
+# ModuleVersion:    0.1.4.9
 # Author:           Pierre Smit
 # Company:          HTPCZA Tech
 # CreatedOn:        2022/09/02 19:26:44
